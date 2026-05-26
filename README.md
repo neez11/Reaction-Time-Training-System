@@ -76,7 +76,7 @@ The block diagram shows how the different parts of the system interact.
 
 The flowchart shows the program logic from startup to measurement and result display.
 
-![Flowchart](docs/flodediagram.png)
+![Flowchart](docs/flödediagram.png)
 
 ---
 
