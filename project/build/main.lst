@@ -1,0 +1,1840 @@
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 1
+
+
+   1              		.file	"main.c"
+   2              		.option nopic
+   3              		.attribute arch, "rv32i2p0_m2p0_a2p0_c2p0"
+   4              		.attribute unaligned_access, 0
+   5              		.attribute stack_align, 16
+   6              		.text
+   7              	.Ltext0:
+   8              		.cfi_sections	.debug_frame
+   9              		.section	.text.delay_ms,"ax",@progbits
+  10              		.align	1
+  11              		.globl	delay_ms
+  13              	delay_ms:
+  14              	.LFB6:
+  15              		.file 1 "main.c"
+   1:main.c        **** #include "gd32vf103.h"
+   2:main.c        **** #include <stdlib.h>
+   3:main.c        **** #include <stdio.h>
+   4:main.c        **** #include "lcd.h"
+   5:main.c        **** #include "pwm.h"      // För buzzer
+   6:main.c        **** #include "vibrator.h"  // För vibrator
+   7:main.c        **** 
+   8:main.c        **** #define MTIME          (*(volatile uint64_t*)0xD1000000)
+   9:main.c        **** #define SYSTEM_CLOCK   108000000
+  10:main.c        **** #define TICKS_PER_MS   (SYSTEM_CLOCK / 4000)
+  11:main.c        **** #define MAX_RESULTS    5
+  12:main.c        **** 
+  13:main.c        **** // Funktionsprototyper
+  14:main.c        **** uint8_t is_button_pressed(void);
+  15:main.c        **** void delay_ms(uint32_t ms);
+  16:main.c        **** uint32_t get_random_delay(void);
+  17:main.c        **** void show_history(void);
+  18:main.c        **** 
+  19:main.c        **** typedef struct {
+  20:main.c        ****     uint32_t time_ms;
+  21:main.c        ****     uint8_t stimulus_type; // 0 = LED, 1 = Buzzer, 2 = Vibrator
+  22:main.c        **** } Result;
+  23:main.c        **** 
+  24:main.c        **** Result results[MAX_RESULTS];
+  25:main.c        **** uint8_t result_count = 0;
+  26:main.c        **** 
+  27:main.c        **** void show_history() {
+  28:main.c        ****     LCD_Clear(BLACK);
+  29:main.c        ****     LCD_ShowStr(10, 5, "Last 5 Results:", YELLOW, BLACK);
+  30:main.c        ****     
+  31:main.c        ****     char msg[40];
+  32:main.c        ****     for (int i = 0; i < result_count; i++) {
+  33:main.c        ****         sprintf(msg, "%d: %d ms (%s)", i + 1, 
+  34:main.c        ****                 results[i].time_ms,
+  35:main.c        ****                 results[i].stimulus_type == 0 ? "LED" :
+  36:main.c        ****                 results[i].stimulus_type == 1 ? "Buzzer" : "Vibrator");
+  37:main.c        ****         LCD_ShowStr(10, 25 + (i * 19), (u8*)msg, RED, BLACK);
+  38:main.c        ****     }
+  39:main.c        ****     
+  40:main.c        ****     LCD_ShowStr(10, 170, "Press button", GREEN, BLACK);
+  41:main.c        ****     while (!is_button_pressed()); // Använd debounce-funktionen
+  42:main.c        ****     while (is_button_pressed());
+  43:main.c        ****     result_count = 0;
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 2
+
+
+  44:main.c        **** }
+  45:main.c        **** 
+  46:main.c        **** void delay_ms(uint32_t ms) {
+  16              		.loc 1 46 28
+  17              		.cfi_startproc
+  18              	.LVL0:
+  47:main.c        ****     uint64_t start = MTIME;
+  19              		.loc 1 47 5
+  20              		.loc 1 47 14 is_stmt 0
+  21 0000 B70700D1 		li	a5,-788529152
+  22 0004 03A80700 		lw	a6,0(a5)
+  23 0008 83A84700 		lw	a7,4(a5)
+  24              	.LVL1:
+  48:main.c        ****     while ((MTIME - start) < (ms * TICKS_PER_MS));
+  25              		.loc 1 48 5 is_stmt 1
+  26              		.loc 1 48 34 is_stmt 0
+  27 000c 9D67     		li	a5,28672
+  28 000e 93878797 		addi	a5,a5,-1672
+  29 0012 3305F502 		mul	a0,a0,a5
+  30              	.LVL2:
+  31 0016 8145     		li	a1,0
+  32              		.loc 1 48 13
+  33 0018 370600D1 		li	a2,-788529152
+  34              	.L2:
+  35              		.loc 1 48 50 is_stmt 1 discriminator 1
+  36              		.loc 1 48 13 is_stmt 0 discriminator 1
+  37 001c 03230600 		lw	t1,0(a2)
+  38 0020 83234600 		lw	t2,4(a2)
+  39              		.loc 1 48 19 discriminator 1
+  40 0024 B3060341 		sub	a3,t1,a6
+  41 0028 3337D300 		sgtu	a4,a3,t1
+  42 002c B3871341 		sub	a5,t2,a7
+  43 0030 998F     		sub	a5,a5,a4
+  44              		.loc 1 48 11 discriminator 1
+  45 0032 6394F500 		bne	a1,a5,.L1
+  46 0036 E3E3A6FE 		bgtu	a0,a3,.L2
+  47              	.L1:
+  49:main.c        **** }
+  48              		.loc 1 49 1
+  49 003a 8280     		ret
+  50              		.cfi_endproc
+  51              	.LFE6:
+  53              		.section	.text.get_random_delay,"ax",@progbits
+  54              		.align	1
+  55              		.globl	get_random_delay
+  57              	get_random_delay:
+  58              	.LFB7:
+  50:main.c        **** 
+  51:main.c        **** uint32_t get_random_delay() {
+  59              		.loc 1 51 29 is_stmt 1
+  60              		.cfi_startproc
+  52:main.c        ****     return (2 + (rand() % 5)) * 1000; // 2-6 seconds
+  61              		.loc 1 52 5
+  51:main.c        ****     return (2 + (rand() % 5)) * 1000; // 2-6 seconds
+  62              		.loc 1 51 29 is_stmt 0
+  63 0000 4111     		addi	sp,sp,-16
+  64              	.LCFI0:
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 3
+
+
+  65              		.cfi_def_cfa_offset 16
+  66 0002 06C6     		sw	ra,12(sp)
+  67              		.cfi_offset 1, -4
+  68              		.loc 1 52 18
+  69 0004 97000000 		call	rand
+  69      E7800000 
+  70              	.LVL3:
+  71              		.loc 1 52 25
+  72 000c 9547     		li	a5,5
+  73 000e 3365F502 		rem	a0,a0,a5
+  53:main.c        **** }
+  74              		.loc 1 53 1
+  75 0012 B240     		lw	ra,12(sp)
+  76              		.cfi_restore 1
+  77 0014 9307803E 		li	a5,1000
+  78 0018 4101     		addi	sp,sp,16
+  79              	.LCFI1:
+  80              		.cfi_def_cfa_offset 0
+  52:main.c        ****     return (2 + (rand() % 5)) * 1000; // 2-6 seconds
+  81              		.loc 1 52 15
+  82 001a 0905     		addi	a0,a0,2
+  83              		.loc 1 53 1
+  84 001c 3305F502 		mul	a0,a0,a5
+  85 0020 8280     		jr	ra
+  86              		.cfi_endproc
+  87              	.LFE7:
+  89              		.section	.text.is_button_pressed,"ax",@progbits
+  90              		.align	1
+  91              		.globl	is_button_pressed
+  93              	is_button_pressed:
+  94              	.LFB8:
+  54:main.c        **** 
+  55:main.c        **** uint8_t is_button_pressed() {
+  95              		.loc 1 55 29 is_stmt 1
+  96              		.cfi_startproc
+  56:main.c        ****     static uint32_t last_time = 0;
+  97              		.loc 1 56 5
+  57:main.c        ****     static uint8_t last_state = 1;
+  98              		.loc 1 57 5
+  58:main.c        ****     uint8_t current_state = gpio_input_bit_get(GPIOA, GPIO_PIN_5);
+  99              		.loc 1 58 5
+ 100              		.loc 1 58 29 is_stmt 0
+ 101 0000 37150140 		li	a0,1073811456
+  55:main.c        ****     static uint32_t last_time = 0;
+ 102              		.loc 1 55 29
+ 103 0004 4111     		addi	sp,sp,-16
+ 104              	.LCFI2:
+ 105              		.cfi_def_cfa_offset 16
+ 106              		.loc 1 58 29
+ 107 0006 93050002 		li	a1,32
+ 108 000a 13050580 		addi	a0,a0,-2048
+  55:main.c        ****     static uint32_t last_time = 0;
+ 109              		.loc 1 55 29
+ 110 000e 06C6     		sw	ra,12(sp)
+ 111              		.cfi_offset 1, -4
+ 112              		.loc 1 58 29
+ 113 0010 97000000 		call	gpio_input_bit_get
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 4
+
+
+ 113      E7800000 
+ 114              	.LVL4:
+  59:main.c        **** 
+  60:main.c        ****     // Enkel debounce-check
+  61:main.c        ****     if (current_state != last_state) {
+ 115              		.loc 1 61 23
+ 116 0018 37070000 		lui	a4,%hi(.LANCHOR0)
+ 117 001c 13070700 		addi	a4,a4,%lo(.LANCHOR0)
+ 118              		.loc 1 61 8
+ 119 0020 83460700 		lbu	a3,0(a4)
+ 120 0024 B7070000 		lui	a5,%hi(.LANCHOR1)
+  58:main.c        **** 
+ 121              		.loc 1 58 13
+ 122 0028 1375F50F 		andi	a0,a0,0xff
+ 123              	.LVL5:
+ 124              		.loc 1 61 5 is_stmt 1
+ 125 002c 93870700 		addi	a5,a5,%lo(.LANCHOR1)
+ 126              		.loc 1 61 8 is_stmt 0
+ 127 0030 6389A600 		beq	a3,a0,.L8
+  62:main.c        ****         last_time = MTIME; // Återställ debounce-timer
+ 128              		.loc 1 62 9 is_stmt 1
+ 129              		.loc 1 62 21 is_stmt 0
+ 130 0034 B70600D1 		li	a3,-788529152
+ 131 0038 9042     		lw	a2,0(a3)
+ 132 003a D442     		lw	a3,4(a3)
+  63:main.c        ****         last_state = current_state;
+ 133              		.loc 1 63 20
+ 134 003c 2300A700 		sb	a0,0(a4)
+  62:main.c        ****         last_time = MTIME; // Återställ debounce-timer
+ 135              		.loc 1 62 19
+ 136 0040 90C3     		sw	a2,0(a5)
+ 137              		.loc 1 63 9 is_stmt 1
+ 138              	.L8:
+  64:main.c        ****     }
+  65:main.c        **** 
+  66:main.c        ****     if ((MTIME - last_time) > (SYSTEM_CLOCK / 1000)) {
+ 139              		.loc 1 66 5
+ 140              		.loc 1 66 10 is_stmt 0
+ 141 0042 370700D1 		li	a4,-788529152
+ 142 0046 1043     		lw	a2,0(a4)
+ 143              		.loc 1 66 16
+ 144 0048 9C43     		lw	a5,0(a5)
+ 145              		.loc 1 66 10
+ 146 004a 5443     		lw	a3,4(a4)
+ 147              		.loc 1 66 16
+ 148 004c B307F640 		sub	a5,a2,a5
+ 149 0050 3337F600 		sgtu	a4,a5,a2
+ 150              		.loc 1 66 8
+ 151 0054 6317D700 		bne	a4,a3,.L12
+ 152 0058 6967     		li	a4,106496
+ 153 005a 1307075E 		addi	a4,a4,1504
+ 154 005e 6377F700 		bleu	a5,a4,.L13
+ 155              	.L12:
+  67:main.c        ****         return current_state == 0; // Knappen tryckt
+ 156              		.loc 1 67 9 is_stmt 1
+ 157              		.loc 1 67 30 is_stmt 0
+ 158 0062 13351500 		seqz	a0,a0
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 5
+
+
+ 159              	.LVL6:
+ 160              	.L9:
+  68:main.c        ****     }
+  69:main.c        ****     return 0; // Knapp inte tryckt
+  70:main.c        **** }
+ 161              		.loc 1 70 1
+ 162 0066 B240     		lw	ra,12(sp)
+ 163              		.cfi_remember_state
+ 164              		.cfi_restore 1
+ 165 0068 4101     		addi	sp,sp,16
+ 166              	.LCFI3:
+ 167              		.cfi_def_cfa_offset 0
+ 168 006a 8280     		jr	ra
+ 169              	.LVL7:
+ 170              	.L13:
+ 171              	.LCFI4:
+ 172              		.cfi_restore_state
+  69:main.c        **** }
+ 173              		.loc 1 69 12
+ 174 006c 0145     		li	a0,0
+ 175              	.LVL8:
+ 176 006e E5BF     		j	.L9
+ 177              		.cfi_endproc
+ 178              	.LFE8:
+ 180              		.section	.text.show_history,"ax",@progbits
+ 181              		.align	1
+ 182              		.globl	show_history
+ 184              	show_history:
+ 185              	.LFB5:
+  27:main.c        ****     LCD_Clear(BLACK);
+ 186              		.loc 1 27 21 is_stmt 1
+ 187              		.cfi_startproc
+  28:main.c        ****     LCD_ShowStr(10, 5, "Last 5 Results:", YELLOW, BLACK);
+ 188              		.loc 1 28 5
+  27:main.c        ****     LCD_Clear(BLACK);
+ 189              		.loc 1 27 21 is_stmt 0
+ 190 0000 1D71     		addi	sp,sp,-96
+ 191              	.LCFI5:
+ 192              		.cfi_def_cfa_offset 96
+  28:main.c        ****     LCD_ShowStr(10, 5, "Last 5 Results:", YELLOW, BLACK);
+ 193              		.loc 1 28 5
+ 194 0002 0145     		li	a0,0
+  27:main.c        ****     LCD_Clear(BLACK);
+ 195              		.loc 1 27 21
+ 196 0004 86CE     		sw	ra,92(sp)
+ 197 0006 A2CC     		sw	s0,88(sp)
+ 198 0008 A6CA     		sw	s1,84(sp)
+ 199 000a CAC8     		sw	s2,80(sp)
+ 200 000c CEC6     		sw	s3,76(sp)
+ 201 000e D2C4     		sw	s4,72(sp)
+ 202 0010 D6C2     		sw	s5,68(sp)
+ 203 0012 5EDE     		sw	s7,60(sp)
+ 204 0014 DAC0     		sw	s6,64(sp)
+ 205              		.cfi_offset 1, -4
+ 206              		.cfi_offset 8, -8
+ 207              		.cfi_offset 9, -12
+ 208              		.cfi_offset 18, -16
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 6
+
+
+ 209              		.cfi_offset 19, -20
+ 210              		.cfi_offset 20, -24
+ 211              		.cfi_offset 21, -28
+ 212              		.cfi_offset 23, -36
+ 213              		.cfi_offset 22, -32
+  28:main.c        ****     LCD_ShowStr(10, 5, "Last 5 Results:", YELLOW, BLACK);
+ 214              		.loc 1 28 5
+ 215 0016 97000000 		call	LCD_Clear
+ 215      E7800000 
+ 216              	.LVL9:
+  29:main.c        ****     
+ 217              		.loc 1 29 5 is_stmt 1
+ 218 001e C166     		li	a3,65536
+ 219 0020 37060000 		lui	a2,%hi(.LC3)
+ 220 0024 0147     		li	a4,0
+ 221 0026 8116     		addi	a3,a3,-32
+ 222 0028 13060600 		addi	a2,a2,%lo(.LC3)
+ 223 002c 9545     		li	a1,5
+ 224 002e 2945     		li	a0,10
+ 225 0030 37040000 		lui	s0,%hi(results)
+ 226              	.LBB2:
+  33:main.c        ****                 results[i].time_ms,
+ 227              		.loc 1 33 9 is_stmt 0
+ 228 0034 37090000 		lui	s2,%hi(.LC0)
+  36:main.c        ****         LCD_ShowStr(10, 25 + (i * 19), (u8*)msg, RED, BLACK);
+ 229              		.loc 1 36 58
+ 230 0038 B7090000 		lui	s3,%hi(.LC1)
+ 231 003c 370A0000 		lui	s4,%hi(.LC2)
+ 232              	.LBE2:
+  29:main.c        ****     
+ 233              		.loc 1 29 5
+ 234 0040 97000000 		call	LCD_ShowStr
+ 234      E7800000 
+ 235              	.LVL10:
+  31:main.c        ****     for (int i = 0; i < result_count; i++) {
+ 236              		.loc 1 31 5 is_stmt 1
+  32:main.c        ****         sprintf(msg, "%d: %d ms (%s)", i + 1, 
+ 237              		.loc 1 32 5
+ 238              	.LBB3:
+  32:main.c        ****         sprintf(msg, "%d: %d ms (%s)", i + 1, 
+ 239              		.loc 1 32 10
+ 240 0048 13040400 		addi	s0,s0,%lo(results)
+  32:main.c        ****         sprintf(msg, "%d: %d ms (%s)", i + 1, 
+ 241              		.loc 1 32 14 is_stmt 0
+ 242 004c 8144     		li	s1,0
+  32:main.c        ****         sprintf(msg, "%d: %d ms (%s)", i + 1, 
+ 243              		.loc 1 32 23
+ 244 004e B70A0000 		lui	s5,%hi(.LANCHOR2)
+  33:main.c        ****                 results[i].time_ms,
+ 245              		.loc 1 33 9
+ 246 0052 13090900 		addi	s2,s2,%lo(.LC0)
+  36:main.c        ****         LCD_ShowStr(10, 25 + (i * 19), (u8*)msg, RED, BLACK);
+ 247              		.loc 1 36 58
+ 248 0056 93890900 		addi	s3,s3,%lo(.LC1)
+ 249 005a 130A0A00 		addi	s4,s4,%lo(.LC2)
+  33:main.c        ****                 results[i].time_ms,
+ 250              		.loc 1 33 9
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 7
+
+
+ 251 005e B70B0000 		lui	s7,%hi(.LC4)
+ 252              	.LVL11:
+ 253              	.L16:
+  32:main.c        ****         sprintf(msg, "%d: %d ms (%s)", i + 1, 
+ 254              		.loc 1 32 23 discriminator 2
+ 255 0062 83C70A00 		lbu	a5,%lo(.LANCHOR2)(s5)
+ 256 0066 138B0A00 		addi	s6,s5,%lo(.LANCHOR2)
+  32:main.c        ****         sprintf(msg, "%d: %d ms (%s)", i + 1, 
+ 257              		.loc 1 32 5 discriminator 2
+ 258 006a 63C7F404 		bgt	a5,s1,.L18
+ 259              	.LBE3:
+  40:main.c        ****     while (!is_button_pressed()); // Använd debounce-funktionen
+ 260              		.loc 1 40 5 is_stmt 1
+ 261 006e 37060000 		lui	a2,%hi(.LC5)
+ 262 0072 0147     		li	a4,0
+ 263 0074 9306007E 		li	a3,2016
+ 264 0078 13060600 		addi	a2,a2,%lo(.LC5)
+ 265 007c 9305A00A 		li	a1,170
+ 266 0080 2945     		li	a0,10
+ 267 0082 97000000 		call	LCD_ShowStr
+ 267      E7800000 
+ 268              	.LVL12:
+  41:main.c        ****     while (is_button_pressed());
+ 269              		.loc 1 41 5
+ 270              	.L19:
+  41:main.c        ****     while (is_button_pressed());
+ 271              		.loc 1 41 33 discriminator 1
+  41:main.c        ****     while (is_button_pressed());
+ 272              		.loc 1 41 13 is_stmt 0 discriminator 1
+ 273 008a 97000000 		call	is_button_pressed
+ 273      E7800000 
+ 274              	.LVL13:
+  41:main.c        ****     while (is_button_pressed());
+ 275              		.loc 1 41 11 discriminator 1
+ 276 0092 65DD     		beq	a0,zero,.L19
+ 277              	.L20:
+  42:main.c        ****     result_count = 0;
+ 278              		.loc 1 42 32 is_stmt 1 discriminator 1
+  42:main.c        ****     result_count = 0;
+ 279              		.loc 1 42 12 is_stmt 0 discriminator 1
+ 280 0094 97000000 		call	is_button_pressed
+ 280      E7800000 
+ 281              	.LVL14:
+  42:main.c        ****     result_count = 0;
+ 282              		.loc 1 42 11 discriminator 1
+ 283 009c 65FD     		bne	a0,zero,.L20
+  43:main.c        **** }
+ 284              		.loc 1 43 5 is_stmt 1
+  44:main.c        **** 
+ 285              		.loc 1 44 1 is_stmt 0
+ 286 009e F640     		lw	ra,92(sp)
+ 287              		.cfi_remember_state
+ 288              		.cfi_restore 1
+ 289 00a0 6644     		lw	s0,88(sp)
+ 290              		.cfi_restore 8
+  43:main.c        **** }
+ 291              		.loc 1 43 18
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 8
+
+
+ 292 00a2 23000B00 		sb	zero,0(s6)
+  44:main.c        **** 
+ 293              		.loc 1 44 1
+ 294 00a6 D644     		lw	s1,84(sp)
+ 295              		.cfi_restore 9
+ 296              	.LVL15:
+ 297 00a8 4649     		lw	s2,80(sp)
+ 298              		.cfi_restore 18
+ 299 00aa B649     		lw	s3,76(sp)
+ 300              		.cfi_restore 19
+ 301 00ac 264A     		lw	s4,72(sp)
+ 302              		.cfi_restore 20
+ 303 00ae 964A     		lw	s5,68(sp)
+ 304              		.cfi_restore 21
+ 305 00b0 064B     		lw	s6,64(sp)
+ 306              		.cfi_restore 22
+ 307 00b2 F25B     		lw	s7,60(sp)
+ 308              		.cfi_restore 23
+ 309 00b4 2561     		addi	sp,sp,96
+ 310              	.LCFI6:
+ 311              		.cfi_def_cfa_offset 0
+ 312 00b6 8280     		jr	ra
+ 313              	.LVL16:
+ 314              	.L18:
+ 315              	.LCFI7:
+ 316              		.cfi_restore_state
+ 317              	.LBB4:
+  33:main.c        ****                 results[i].time_ms,
+ 318              		.loc 1 33 9 is_stmt 1
+  35:main.c        ****                 results[i].stimulus_type == 1 ? "Buzzer" : "Vibrator");
+ 319              		.loc 1 35 27 is_stmt 0
+ 320 00b8 83474400 		lbu	a5,4(s0)
+  33:main.c        ****                 results[i].time_ms,
+ 321              		.loc 1 33 9
+ 322 00bc 8504     		addi	s1,s1,1
+ 323              	.LVL17:
+ 324 00be 1440     		lw	a3,0(s0)
+ 325 00c0 4A87     		mv	a4,s2
+ 326 00c2 91C7     		beq	a5,zero,.L17
+  36:main.c        ****         LCD_ShowStr(10, 25 + (i * 19), (u8*)msg, RED, BLACK);
+ 327              		.loc 1 36 58
+ 328 00c4 0546     		li	a2,1
+ 329 00c6 4E87     		mv	a4,s3
+ 330 00c8 6383C700 		beq	a5,a2,.L17
+ 331 00cc 5287     		mv	a4,s4
+ 332              	.L17:
+  33:main.c        ****                 results[i].time_ms,
+ 333              		.loc 1 33 9 discriminator 3
+ 334 00ce 2686     		mv	a2,s1
+ 335 00d0 93850B00 		addi	a1,s7,%lo(.LC4)
+ 336 00d4 2800     		addi	a0,sp,8
+ 337 00d6 97000000 		call	sprintf
+ 337      E7800000 
+ 338              	.LVL18:
+  37:main.c        ****     }
+ 339              		.loc 1 37 9 is_stmt 1 discriminator 3
+ 340 00de CD45     		li	a1,19
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 9
+
+
+ 341 00e0 B385B402 		mul	a1,s1,a1
+ 342 00e4 C166     		li	a3,65536
+ 343 00e6 0147     		li	a4,0
+ 344 00e8 93860680 		addi	a3,a3,-2048
+ 345 00ec 3000     		addi	a2,sp,8
+ 346 00ee 2945     		li	a0,10
+ 347 00f0 2104     		addi	s0,s0,8
+ 348 00f2 9905     		addi	a1,a1,6
+ 349 00f4 97000000 		call	LCD_ShowStr
+ 349      E7800000 
+ 350              	.LVL19:
+ 351 00fc 9DB7     		j	.L16
+ 352              	.LBE4:
+ 353              		.cfi_endproc
+ 354              	.LFE5:
+ 356              		.globl	__udivdi3
+ 357              		.section	.text.startup.main,"ax",@progbits
+ 358              		.align	1
+ 359              		.globl	main
+ 361              	main:
+ 362              	.LFB9:
+  71:main.c        **** 
+  72:main.c        **** int main() {
+ 363              		.loc 1 72 12
+ 364              		.cfi_startproc
+  73:main.c        ****     // Initiera GPIO
+  74:main.c        ****     rcu_periph_clock_enable(RCU_GPIOB);  // För LED och vibrator
+ 365              		.loc 1 74 5
+  72:main.c        ****     // Initiera GPIO
+ 366              		.loc 1 72 12 is_stmt 0
+ 367 0000 5971     		addi	sp,sp,-112
+ 368              	.LCFI8:
+ 369              		.cfi_def_cfa_offset 112
+ 370              		.loc 1 74 5
+ 371 0002 13053060 		li	a0,1539
+  72:main.c        ****     // Initiera GPIO
+ 372              		.loc 1 72 12
+ 373 0006 86D6     		sw	ra,108(sp)
+ 374 0008 A6D2     		sw	s1,100(sp)
+ 375 000a D2CC     		sw	s4,88(sp)
+ 376 000c D6CA     		sw	s5,84(sp)
+ 377 000e E2C4     		sw	s8,72(sp)
+ 378 0010 A2D4     		sw	s0,104(sp)
+ 379 0012 CAD0     		sw	s2,96(sp)
+ 380 0014 CECE     		sw	s3,92(sp)
+ 381 0016 DAC8     		sw	s6,80(sp)
+ 382 0018 DEC6     		sw	s7,76(sp)
+ 383 001a E6C2     		sw	s9,68(sp)
+ 384              		.cfi_offset 1, -4
+ 385              		.cfi_offset 9, -12
+ 386              		.cfi_offset 20, -24
+ 387              		.cfi_offset 21, -28
+ 388              		.cfi_offset 24, -40
+ 389              		.cfi_offset 8, -8
+ 390              		.cfi_offset 18, -16
+ 391              		.cfi_offset 19, -20
+ 392              		.cfi_offset 22, -32
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 10
+
+
+ 393              		.cfi_offset 23, -36
+ 394              		.cfi_offset 25, -44
+ 395              		.loc 1 74 5
+ 396 001c 97000000 		call	rcu_periph_clock_enable
+ 396      E7800000 
+ 397              	.LVL20:
+  75:main.c        ****     rcu_periph_clock_enable(RCU_GPIOA);  // För knapp och buzzer
+ 398              		.loc 1 75 5 is_stmt 1
+ 399 0024 13052060 		li	a0,1538
+ 400 0028 97000000 		call	rcu_periph_clock_enable
+ 400      E7800000 
+ 401              	.LVL21:
+  76:main.c        ****     rcu_periph_clock_enable(RCU_GPIOC);  // För LCD
+ 402              		.loc 1 76 5
+ 403 0030 13054060 		li	a0,1540
+ 404 0034 97000000 		call	rcu_periph_clock_enable
+ 404      E7800000 
+ 405              	.LVL22:
+  77:main.c        **** 
+  78:main.c        ****     gpio_init(GPIOB, GPIO_MODE_OUT_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_0);  // LED
+ 406              		.loc 1 78 5
+ 407 003c B7140140 		li	s1,1073811456
+ 408 0040 138504C0 		addi	a0,s1,-1024
+ 409 0044 8546     		li	a3,1
+ 410 0046 0D46     		li	a2,3
+ 411 0048 C145     		li	a1,16
+ 412 004a 97000000 		call	gpio_init
+ 412      E7800000 
+ 413              	.LVL23:
+  79:main.c        ****     gpio_init(GPIOA, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, GPIO_PIN_5); // Knapp
+ 414              		.loc 1 79 5
+ 415 0052 13850480 		addi	a0,s1,-2048
+ 416 0056 93060002 		li	a3,32
+ 417 005a 0D46     		li	a2,3
+ 418 005c 9145     		li	a1,4
+ 419 005e 97000000 		call	gpio_init
+ 419      E7800000 
+ 420              	.LVL24:
+  80:main.c        ****     gpio_init(GPIOC, GPIO_MODE_OUT_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_13 | GPIO_PIN_15); // LCD
+ 421              		.loc 1 80 5
+ 422 0066 A966     		li	a3,40960
+ 423 0068 0D46     		li	a2,3
+ 424 006a C145     		li	a1,16
+ 425 006c 37150140 		li	a0,1073811456
+ 426 0070 97000000 		call	gpio_init
+ 426      E7800000 
+ 427              	.LVL25:
+  81:main.c        **** 
+  82:main.c        ****     // Initiera LCD
+  83:main.c        ****     Lcd_Init();
+ 428              		.loc 1 83 5
+ 429 0078 97000000 		call	Lcd_Init
+ 429      E7800000 
+ 430              	.LVL26:
+  84:main.c        ****     LCD_Clear(BLACK);
+ 431              		.loc 1 84 5
+ 432 0080 0145     		li	a0,0
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 11
+
+
+ 433 0082 97000000 		call	LCD_Clear
+ 433      E7800000 
+ 434              	.LVL27:
+  85:main.c        ****     LCD_ShowStr(10, 10, "Reaction Timer", RED, BLACK);
+ 435              		.loc 1 85 5
+ 436 008a C166     		li	a3,65536
+ 437 008c 37060000 		lui	a2,%hi(.LC6)
+ 438 0090 0147     		li	a4,0
+ 439 0092 93860680 		addi	a3,a3,-2048
+ 440 0096 13060600 		addi	a2,a2,%lo(.LC6)
+ 441 009a A945     		li	a1,10
+ 442 009c 2945     		li	a0,10
+ 443 009e 97000000 		call	LCD_ShowStr
+ 443      E7800000 
+ 444              	.LVL28:
+  86:main.c        ****     delay_ms(1000);
+ 445              		.loc 1 86 5
+ 446 00a6 1305803E 		li	a0,1000
+ 447 00aa 97000000 		call	delay_ms
+ 447      E7800000 
+ 448              	.LVL29:
+  87:main.c        **** 
+  88:main.c        ****     // Initiera buzzer (PA6 / TIMER2 CH0)
+  89:main.c        ****     T2powerUpInitPWM(0x1);
+ 449              		.loc 1 89 5
+ 450 00b2 0545     		li	a0,1
+ 451              	.LBB5:
+  90:main.c        **** 
+  91:main.c        ****     // Initiera vibrator (sköts nu endast i vibrator.c)
+  92:main.c        ****     vibrator_init();
+  93:main.c        **** 
+  94:main.c        ****     while (1) {
+  95:main.c        ****         LCD_Clear(BLACK);
+  96:main.c        ****         LCD_ShowStr(10, 10, "Get Ready... ", YELLOW, BLACK);
+  97:main.c        ****         delay_ms(get_random_delay());
+  98:main.c        **** 
+  99:main.c        ****         // Välj slumpmässig stimulus: 0 = LED, 1 = Buzzer, 2 = Vibrator
+ 100:main.c        ****         int mode = rand() % 3;
+ 101:main.c        **** 
+ 102:main.c        ****         LCD_Clear(BLACK);
+ 103:main.c        ****         char press_msg[20];
+ 104:main.c        ****         sprintf(press_msg, "PRESS %s", mode == 0 ? "LED" : (mode == 1 ? "Buzzer" : "Vibrator"));
+ 452              		.loc 1 104 9 is_stmt 0
+ 453 00b4 370A0000 		lui	s4,%hi(.LC0)
+ 454              		.loc 1 104 82
+ 455 00b8 B70A0000 		lui	s5,%hi(.LC1)
+ 456 00bc 370C0000 		lui	s8,%hi(.LC2)
+ 457              	.LBE5:
+  89:main.c        **** 
+ 458              		.loc 1 89 5
+ 459 00c0 97000000 		call	T2powerUpInitPWM
+ 459      E7800000 
+ 460              	.LVL30:
+  92:main.c        **** 
+ 461              		.loc 1 92 5 is_stmt 1
+ 462              	.LBB9:
+ 463              		.loc 1 104 9 is_stmt 0
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 12
+
+
+ 464 00c8 130A0A00 		addi	s4,s4,%lo(.LC0)
+ 465              	.LBE9:
+  92:main.c        **** 
+ 466              		.loc 1 92 5
+ 467 00cc 97000000 		call	vibrator_init
+ 467      E7800000 
+ 468              	.LVL31:
+ 469              	.LBB10:
+ 470              		.loc 1 104 82
+ 471 00d4 938A0A00 		addi	s5,s5,%lo(.LC1)
+ 472 00d8 130C0C00 		addi	s8,s8,%lo(.LC2)
+ 105:main.c        ****         LCD_ShowStr(10, 10, press_msg, GREEN, BLACK);
+ 106:main.c        ****         uint64_t start_time = MTIME;
+ 107:main.c        **** 
+ 108:main.c        ****         // Aktivera stimulus
+ 109:main.c        ****         if (mode == 0) {
+ 110:main.c        ****             gpio_bit_set(GPIOB, GPIO_PIN_0);  // LED on
+ 473              		.loc 1 110 13
+ 474 00dc 938404C0 		addi	s1,s1,-1024
+ 475              	.L37:
+ 476              	.LBE10:
+  94:main.c        ****         LCD_Clear(BLACK);
+ 477              		.loc 1 94 5 is_stmt 1
+ 478              	.LBB11:
+  95:main.c        ****         LCD_ShowStr(10, 10, "Get Ready... ", YELLOW, BLACK);
+ 479              		.loc 1 95 9
+ 480 00e0 0145     		li	a0,0
+ 481 00e2 97000000 		call	LCD_Clear
+ 481      E7800000 
+ 482              	.LVL32:
+  96:main.c        ****         delay_ms(get_random_delay());
+ 483              		.loc 1 96 9
+ 484 00ea C166     		li	a3,65536
+ 485 00ec 37060000 		lui	a2,%hi(.LC7)
+ 486 00f0 0147     		li	a4,0
+ 487 00f2 8116     		addi	a3,a3,-32
+ 488 00f4 13060600 		addi	a2,a2,%lo(.LC7)
+ 489 00f8 A945     		li	a1,10
+ 490 00fa 2945     		li	a0,10
+ 491 00fc 97000000 		call	LCD_ShowStr
+ 491      E7800000 
+ 492              	.LVL33:
+  97:main.c        **** 
+ 493              		.loc 1 97 9
+ 494 0104 97000000 		call	get_random_delay
+ 494      E7800000 
+ 495              	.LVL34:
+ 496 010c 97000000 		call	delay_ms
+ 496      E7800000 
+ 497              	.LVL35:
+ 100:main.c        **** 
+ 498              		.loc 1 100 9
+ 100:main.c        **** 
+ 499              		.loc 1 100 20 is_stmt 0
+ 500 0114 97000000 		call	rand
+ 500      E7800000 
+ 501              	.LVL36:
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 13
+
+
+ 100:main.c        **** 
+ 502              		.loc 1 100 13
+ 503 011c 0D44     		li	s0,3
+ 504 011e 33648502 		rem	s0,a0,s0
+ 505              	.LVL37:
+ 102:main.c        ****         char press_msg[20];
+ 506              		.loc 1 102 9 is_stmt 1
+ 507 0122 0145     		li	a0,0
+ 508 0124 97000000 		call	LCD_Clear
+ 508      E7800000 
+ 509              	.LVL38:
+ 103:main.c        ****         sprintf(press_msg, "PRESS %s", mode == 0 ? "LED" : (mode == 1 ? "Buzzer" : "Vibrator"));
+ 510              		.loc 1 103 9
+ 104:main.c        ****         LCD_ShowStr(10, 10, press_msg, GREEN, BLACK);
+ 511              		.loc 1 104 9
+ 512 012c D289     		mv	s3,s4
+ 513 012e 11C4     		beq	s0,zero,.L28
+ 104:main.c        ****         LCD_ShowStr(10, 10, press_msg, GREEN, BLACK);
+ 514              		.loc 1 104 82 is_stmt 0 discriminator 1
+ 515 0130 8547     		li	a5,1
+ 516 0132 D689     		mv	s3,s5
+ 517 0134 6303F400 		beq	s0,a5,.L28
+ 104:main.c        ****         LCD_ShowStr(10, 10, press_msg, GREEN, BLACK);
+ 518              		.loc 1 104 82
+ 519 0138 E289     		mv	s3,s8
+ 520              	.L28:
+ 104:main.c        ****         LCD_ShowStr(10, 10, press_msg, GREEN, BLACK);
+ 521              		.loc 1 104 9 discriminator 8
+ 522 013a B7050000 		lui	a1,%hi(.LC8)
+ 523 013e 4E86     		mv	a2,s3
+ 524 0140 93850500 		addi	a1,a1,%lo(.LC8)
+ 525 0144 4800     		addi	a0,sp,4
+ 526 0146 97000000 		call	sprintf
+ 526      E7800000 
+ 527              	.LVL39:
+ 105:main.c        ****         uint64_t start_time = MTIME;
+ 528              		.loc 1 105 9 is_stmt 1 discriminator 8
+ 529 014e 0147     		li	a4,0
+ 530 0150 9306007E 		li	a3,2016
+ 531 0154 5000     		addi	a2,sp,4
+ 532 0156 A945     		li	a1,10
+ 533 0158 2945     		li	a0,10
+ 534 015a 97000000 		call	LCD_ShowStr
+ 534      E7800000 
+ 535              	.LVL40:
+ 106:main.c        **** 
+ 536              		.loc 1 106 9 discriminator 8
+ 106:main.c        **** 
+ 537              		.loc 1 106 18 is_stmt 0 discriminator 8
+ 538 0162 B70700D1 		li	a5,-788529152
+ 539 0166 03AB0700 		lw	s6,0(a5)
+ 540 016a 83AB4700 		lw	s7,4(a5)
+ 541              	.LVL41:
+ 109:main.c        ****             gpio_bit_set(GPIOB, GPIO_PIN_0);  // LED on
+ 542              		.loc 1 109 9 is_stmt 1 discriminator 8
+ 109:main.c        ****             gpio_bit_set(GPIOB, GPIO_PIN_0);  // LED on
+ 543              		.loc 1 109 12 is_stmt 0 discriminator 8
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 14
+
+
+ 544 016e 63100412 		bne	s0,zero,.L29
+ 545              		.loc 1 110 13 is_stmt 1
+ 546 0172 8545     		li	a1,1
+ 547 0174 2685     		mv	a0,s1
+ 548 0176 97000000 		call	gpio_bit_set
+ 548      E7800000 
+ 549              	.LVL42:
+ 550              	.L30:
+ 104:main.c        ****         LCD_ShowStr(10, 10, press_msg, GREEN, BLACK);
+ 551              		.loc 1 104 82 is_stmt 0
+ 552 017e 930C401F 		li	s9,500
+ 553              	.L32:
+ 554              	.LVL43:
+ 555              	.LBB6:
+ 111:main.c        ****         } else if (mode == 1) {
+ 112:main.c        ****             T2setPWMch0(586);  // Buzzer on (852 Hz)
+ 113:main.c        ****         } else if (mode == 2) {
+ 114:main.c        ****             vibrator_on();  // Vibrator on
+ 115:main.c        ****         }
+ 116:main.c        **** 
+ 117:main.c        ****         // Vänta på knapptryckning, max 0.5 sek
+ 118:main.c        ****         uint8_t pressed = 0;
+ 119:main.c        ****         for (int timer = 0; timer < 500; timer++) {
+ 120:main.c        ****             if (is_button_pressed()) {
+ 556              		.loc 1 120 13 is_stmt 1
+ 557              		.loc 1 120 17 is_stmt 0
+ 558 0182 97000000 		call	is_button_pressed
+ 558      E7800000 
+ 559              	.LVL44:
+ 560 018a 2A89     		mv	s2,a0
+ 561              		.loc 1 120 16
+ 562 018c 63130512 		bne	a0,zero,.L40
+ 121:main.c        ****                 pressed = 1;
+ 122:main.c        ****                 break;
+ 123:main.c        ****             }
+ 124:main.c        ****             delay_ms(1);
+ 563              		.loc 1 124 13 is_stmt 1 discriminator 2
+ 564 0190 0545     		li	a0,1
+ 565 0192 FD1C     		addi	s9,s9,-1
+ 566              	.LVL45:
+ 567 0194 97000000 		call	delay_ms
+ 567      E7800000 
+ 568              	.LVL46:
+ 119:main.c        ****             if (is_button_pressed()) {
+ 569              		.loc 1 119 9 is_stmt 0 discriminator 2
+ 570 019c E3930CFE 		bne	s9,zero,.L32
+ 571              	.L33:
+ 572              	.LVL47:
+ 573              	.LBE6:
+ 125:main.c        ****         }
+ 126:main.c        **** 
+ 127:main.c        ****         // Deaktivera stimulus
+ 128:main.c        ****         gpio_bit_reset(GPIOB, GPIO_PIN_0);  // LED off
+ 574              		.loc 1 128 9 is_stmt 1
+ 575 01a0 8545     		li	a1,1
+ 576 01a2 2685     		mv	a0,s1
+ 577 01a4 97000000 		call	gpio_bit_reset
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 15
+
+
+ 577      E7800000 
+ 578              	.LVL48:
+ 129:main.c        ****         T2setPWMch0(0);  // Buzzer off
+ 579              		.loc 1 129 9
+ 580 01ac 0145     		li	a0,0
+ 581 01ae 97000000 		call	T2setPWMch0
+ 581      E7800000 
+ 582              	.LVL49:
+ 130:main.c        ****         vibrator_off();  // Vibrator off
+ 583              		.loc 1 130 9
+ 584 01b6 97000000 		call	vibrator_off
+ 584      E7800000 
+ 585              	.LVL50:
+ 131:main.c        **** 
+ 132:main.c        ****         if (pressed) {
+ 586              		.loc 1 132 9
+ 587              		.loc 1 132 12 is_stmt 0
+ 588 01be 630C090E 		beq	s2,zero,.L34
+ 589              	.LVL51:
+ 590              	.LBB7:
+ 133:main.c        ****             uint64_t reaction_ticks = MTIME - start_time;
+ 591              		.loc 1 133 13 is_stmt 1
+ 592              		.loc 1 133 39 is_stmt 0
+ 593 01c2 B70700D1 		li	a5,-788529152
+ 594 01c6 03A84700 		lw	a6,4(a5)
+ 595 01ca 9C43     		lw	a5,0(a5)
+ 596              	.LVL52:
+ 134:main.c        ****             uint32_t reaction_time_ms = reaction_ticks / TICKS_PER_MS;
+ 597              		.loc 1 134 13 is_stmt 1
+ 598              		.loc 1 134 56 is_stmt 0
+ 599 01cc 1D66     		li	a2,28672
+ 133:main.c        ****             uint64_t reaction_ticks = MTIME - start_time;
+ 600              		.loc 1 133 22
+ 601 01ce B3057841 		sub	a1,a6,s7
+ 602 01d2 33856741 		sub	a0,a5,s6
+ 603 01d6 33B7A700 		sgtu	a4,a0,a5
+ 604              		.loc 1 134 56
+ 605 01da 13068697 		addi	a2,a2,-1672
+ 606 01de 8146     		li	a3,0
+ 607 01e0 998D     		sub	a1,a1,a4
+ 135:main.c        ****             
+ 136:main.c        ****             // Spara resultat
+ 137:main.c        ****             results[result_count].time_ms = reaction_time_ms;
+ 608              		.loc 1 137 34
+ 609 01e2 37090000 		lui	s2,%hi(.LANCHOR2)
+ 134:main.c        ****             uint32_t reaction_time_ms = reaction_ticks / TICKS_PER_MS;
+ 610              		.loc 1 134 56
+ 611 01e6 97000000 		call	__udivdi3
+ 611      E7800000 
+ 612              	.LVL53:
+ 613              		.loc 1 137 34
+ 614 01ee 13090900 		addi	s2,s2,%lo(.LANCHOR2)
+ 615 01f2 03470900 		lbu	a4,0(s2)
+ 616              		.loc 1 137 43
+ 617 01f6 B7070000 		lui	a5,%hi(results)
+ 618 01fa 93870700 		addi	a5,a5,%lo(results)
+ 619 01fe 93163700 		slli	a3,a4,3
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 16
+
+
+ 620 0202 B697     		add	a5,a5,a3
+ 621 0204 88C3     		sw	a0,0(a5)
+ 138:main.c        ****             results[result_count].stimulus_type = mode;
+ 622              		.loc 1 138 49
+ 623 0206 23828700 		sb	s0,4(a5)
+ 139:main.c        ****             result_count++;
+ 624              		.loc 1 139 25
+ 625 020a 0507     		addi	a4,a4,1
+ 134:main.c        ****             
+ 626              		.loc 1 134 56
+ 627 020c 2A8B     		mv	s6,a0
+ 628              	.LVL54:
+ 137:main.c        ****             results[result_count].stimulus_type = mode;
+ 629              		.loc 1 137 13 is_stmt 1
+ 138:main.c        ****             result_count++;
+ 630              		.loc 1 138 13
+ 631              		.loc 1 139 13
+ 140:main.c        ****         
+ 141:main.c        ****             LCD_Clear(BLACK);
+ 632              		.loc 1 141 13 is_stmt 0
+ 633 020e 0145     		li	a0,0
+ 634              	.LVL55:
+ 139:main.c        ****         
+ 635              		.loc 1 139 25
+ 636 0210 2300E900 		sb	a4,0(s2)
+ 637              		.loc 1 141 13 is_stmt 1
+ 638 0214 97000000 		call	LCD_Clear
+ 638      E7800000 
+ 639              	.LVL56:
+ 142:main.c        ****             LCD_ShowStr(10, 10, "Nice! ", GREEN, BLACK);
+ 640              		.loc 1 142 13
+ 641 021c 37060000 		lui	a2,%hi(.LC9)
+ 642 0220 0147     		li	a4,0
+ 643 0222 9306007E 		li	a3,2016
+ 644 0226 13060600 		addi	a2,a2,%lo(.LC9)
+ 645 022a A945     		li	a1,10
+ 646 022c 2945     		li	a0,10
+ 647 022e 97000000 		call	LCD_ShowStr
+ 647      E7800000 
+ 648              	.LVL57:
+ 143:main.c        ****         
+ 144:main.c        ****             char msg[40];
+ 649              		.loc 1 144 13
+ 145:main.c        ****             sprintf(msg, "Time: %d ms (%s)", reaction_time_ms, mode == 0 ? "LED" : (mode == 1 ? "Bu
+ 650              		.loc 1 145 13
+ 651 0236 B7050000 		lui	a1,%hi(.LC10)
+ 652 023a CE86     		mv	a3,s3
+ 653 023c 5A86     		mv	a2,s6
+ 654 023e 93850500 		addi	a1,a1,%lo(.LC10)
+ 655 0242 2808     		addi	a0,sp,24
+ 656 0244 97000000 		call	sprintf
+ 656      E7800000 
+ 657              	.LVL58:
+ 146:main.c        ****             LCD_ShowStr(5, 35, (u8*)msg, CYAN, BLACK);
+ 658              		.loc 1 146 13
+ 659 024c A166     		li	a3,32768
+ 660 024e 0147     		li	a4,0
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 17
+
+
+ 661 0250 FD16     		addi	a3,a3,-1
+ 662 0252 3008     		addi	a2,sp,24
+ 663 0254 93053002 		li	a1,35
+ 664 0258 1545     		li	a0,5
+ 665 025a 97000000 		call	LCD_ShowStr
+ 665      E7800000 
+ 666              	.LVL59:
+ 147:main.c        ****             
+ 148:main.c        ****             if (result_count >= MAX_RESULTS) {
+ 667              		.loc 1 148 13
+ 668              		.loc 1 148 16 is_stmt 0
+ 669 0262 03470900 		lbu	a4,0(s2)
+ 670 0266 9147     		li	a5,4
+ 671 0268 63FCE700 		bleu	a4,a5,.L36
+ 149:main.c        ****                 delay_ms(2000);
+ 672              		.loc 1 149 17 is_stmt 1
+ 673 026c 1305007D 		li	a0,2000
+ 674 0270 97000000 		call	delay_ms
+ 674      E7800000 
+ 675              	.LVL60:
+ 150:main.c        ****                 show_history();
+ 676              		.loc 1 150 17
+ 677 0278 97000000 		call	show_history
+ 677      E7800000 
+ 678              	.LVL61:
+ 679              	.L36:
+ 680              	.LBE7:
+ 151:main.c        ****             }
+ 152:main.c        ****         } else {
+ 153:main.c        ****             LCD_Clear(BLACK);
+ 154:main.c        ****             LCD_ShowStr(10, 10, "Too Slow! ", RED, BLACK);
+ 155:main.c        ****         }
+ 156:main.c        ****         
+ 157:main.c        ****         delay_ms(1000);
+ 681              		.loc 1 157 9 discriminator 1
+ 682 0280 1305803E 		li	a0,1000
+ 683 0284 97000000 		call	delay_ms
+ 683      E7800000 
+ 684              	.LVL62:
+ 685              	.LBE11:
+  94:main.c        ****         LCD_Clear(BLACK);
+ 686              		.loc 1 94 15 is_stmt 0 discriminator 1
+ 687 028c 91BD     		j	.L37
+ 688              	.LVL63:
+ 689              	.L29:
+ 690              	.LBB12:
+ 111:main.c        ****             T2setPWMch0(586);  // Buzzer on (852 Hz)
+ 691              		.loc 1 111 16 is_stmt 1
+ 111:main.c        ****             T2setPWMch0(586);  // Buzzer on (852 Hz)
+ 692              		.loc 1 111 19 is_stmt 0
+ 693 028e 8547     		li	a5,1
+ 694 0290 6319F400 		bne	s0,a5,.L31
+ 112:main.c        ****         } else if (mode == 2) {
+ 695              		.loc 1 112 13 is_stmt 1
+ 696 0294 1305A024 		li	a0,586
+ 697 0298 97000000 		call	T2setPWMch0
+ 697      E7800000 
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 18
+
+
+ 698              	.LVL64:
+ 699 02a0 F9BD     		j	.L30
+ 700              	.L31:
+ 113:main.c        ****             vibrator_on();  // Vibrator on
+ 701              		.loc 1 113 16
+ 113:main.c        ****             vibrator_on();  // Vibrator on
+ 702              		.loc 1 113 19 is_stmt 0
+ 703 02a2 8947     		li	a5,2
+ 704 02a4 E31DF4EC 		bne	s0,a5,.L30
+ 114:main.c        ****         }
+ 705              		.loc 1 114 13 is_stmt 1
+ 706 02a8 97000000 		call	vibrator_on
+ 706      E7800000 
+ 707              	.LVL65:
+ 708 02b0 F9B5     		j	.L30
+ 709              	.LVL66:
+ 710              	.L40:
+ 711              	.LBB8:
+ 121:main.c        ****                 break;
+ 712              		.loc 1 121 25 is_stmt 0
+ 713 02b2 0549     		li	s2,1
+ 714 02b4 F5B5     		j	.L33
+ 715              	.LVL67:
+ 716              	.L34:
+ 717              	.LBE8:
+ 153:main.c        ****             LCD_ShowStr(10, 10, "Too Slow! ", RED, BLACK);
+ 718              		.loc 1 153 13 is_stmt 1
+ 719 02b6 0145     		li	a0,0
+ 720 02b8 97000000 		call	LCD_Clear
+ 720      E7800000 
+ 721              	.LVL68:
+ 154:main.c        ****         }
+ 722              		.loc 1 154 13
+ 723 02c0 C166     		li	a3,65536
+ 724 02c2 37060000 		lui	a2,%hi(.LC11)
+ 725 02c6 0147     		li	a4,0
+ 726 02c8 93860680 		addi	a3,a3,-2048
+ 727 02cc 13060600 		addi	a2,a2,%lo(.LC11)
+ 728 02d0 A945     		li	a1,10
+ 729 02d2 2945     		li	a0,10
+ 730 02d4 97000000 		call	LCD_ShowStr
+ 730      E7800000 
+ 731              	.LVL69:
+ 732 02dc 55B7     		j	.L36
+ 733              	.LBE12:
+ 734              		.cfi_endproc
+ 735              	.LFE9:
+ 737              		.globl	result_count
+ 738              		.comm	results,40,4
+ 739              		.section	.rodata.main.str1.4,"aMS",@progbits,1
+ 740              		.align	2
+ 741              	.LC6:
+ 742 0000 52656163 		.string	"Reaction Timer"
+ 742      74696F6E 
+ 742      2054696D 
+ 742      657200
+ 743 000f 00       		.zero	1
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 19
+
+
+ 744              	.LC7:
+ 745 0010 47657420 		.string	"Get Ready... "
+ 745      52656164 
+ 745      792E2E2E 
+ 745      2000
+ 746 001e 0000     		.zero	2
+ 747              	.LC8:
+ 748 0020 50524553 		.string	"PRESS %s"
+ 748      53202573 
+ 748      00
+ 749 0029 000000   		.zero	3
+ 750              	.LC9:
+ 751 002c 4E696365 		.string	"Nice! "
+ 751      212000
+ 752 0033 00       		.zero	1
+ 753              	.LC10:
+ 754 0034 54696D65 		.string	"Time: %d ms (%s)"
+ 754      3A202564 
+ 754      206D7320 
+ 754      28257329 
+ 754      00
+ 755 0045 000000   		.zero	3
+ 756              	.LC11:
+ 757 0048 546F6F20 		.string	"Too Slow! "
+ 757      536C6F77 
+ 757      212000
+ 758              		.section	.rodata.show_history.str1.4,"aMS",@progbits,1
+ 759              		.align	2
+ 760              	.LC0:
+ 761 0000 4C454400 		.string	"LED"
+ 762              	.LC1:
+ 763 0004 42757A7A 		.string	"Buzzer"
+ 763      657200
+ 764 000b 00       		.zero	1
+ 765              	.LC2:
+ 766 000c 56696272 		.string	"Vibrator"
+ 766      61746F72 
+ 766      00
+ 767 0015 000000   		.zero	3
+ 768              	.LC3:
+ 769 0018 4C617374 		.string	"Last 5 Results:"
+ 769      20352052 
+ 769      6573756C 
+ 769      74733A00 
+ 770              	.LC4:
+ 771 0028 25643A20 		.string	"%d: %d ms (%s)"
+ 771      2564206D 
+ 771      73202825 
+ 771      732900
+ 772 0037 00       		.zero	1
+ 773              	.LC5:
+ 774 0038 50726573 		.string	"Press button"
+ 774      73206275 
+ 774      74746F6E 
+ 774      00
+ 775              		.section	.sbss.last_time.5046,"aw",@nobits
+ 776              		.align	2
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 20
+
+
+ 777              		.set	.LANCHOR1,. + 0
+ 780              	last_time.5046:
+ 781 0000 00000000 		.zero	4
+ 782              		.section	.sbss.result_count,"aw",@nobits
+ 783              		.set	.LANCHOR2,. + 0
+ 786              	result_count:
+ 787 0000 00       		.zero	1
+ 788              		.section	.sdata.last_state.5047,"aw"
+ 789              		.set	.LANCHOR0,. + 0
+ 792              	last_state.5047:
+ 793 0000 01       		.byte	1
+ 794              		.text
+ 795              	.Letext0:
+ 796              		.file 2 "c:\\users\\nesre\\documents\\mikro\\toolchain-gd32v-v202-win\\compiler\\riscv64-unknown-e
+ 797              		.file 3 "c:\\users\\nesre\\documents\\mikro\\toolchain-gd32v-v202-win\\compiler\\riscv64-unknown-e
+ 798              		.file 4 "c:\\users\\nesre\\documents\\mikro\\toolchain-gd32v-v202-win\\compiler\\lib\\gcc\\riscv64
+ 799              		.file 5 "c:\\users\\nesre\\documents\\mikro\\toolchain-gd32v-v202-win\\compiler\\riscv64-unknown-e
+ 800              		.file 6 "c:\\users\\nesre\\documents\\mikro\\toolchain-gd32v-v202-win\\compiler\\riscv64-unknown-e
+ 801              		.file 7 "c:\\users\\nesre\\documents\\mikro\\toolchain-gd32v-v202-win\\compiler\\riscv64-unknown-e
+ 802              		.file 8 "./../../firmware/GD32VF103_standard_peripheral/system_gd32vf103.h"
+ 803              		.file 9 "c:\\users\\nesre\\documents\\mikro\\toolchain-gd32v-v202-win\\compiler\\riscv64-unknown-e
+ 804              		.file 10 "lcd.h"
+ 805              		.file 11 "c:\\users\\nesre\\documents\\mikro\\toolchain-gd32v-v202-win\\compiler\\riscv64-unknown-
+ 806              		.file 12 "./../../firmware/GD32VF103_standard_peripheral/Include/gd32vf103_gpio.h"
+ 807              		.file 13 "pwm.h"
+ 808              		.file 14 "vibrator.h"
+ 809              		.file 15 "./../../firmware/GD32VF103_standard_peripheral/Include/gd32vf103_rcu.h"
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 21
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:13     .text.delay_ms:0000000000000000 delay_ms
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:17     .text.delay_ms:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:19     .text.delay_ms:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:20     .text.delay_ms:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:21     .text.delay_ms:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:26     .text.delay_ms:000000000000000c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:27     .text.delay_ms:000000000000000c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:33     .text.delay_ms:0000000000000018 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:36     .text.delay_ms:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:37     .text.delay_ms:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:40     .text.delay_ms:0000000000000024 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:45     .text.delay_ms:0000000000000032 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:49     .text.delay_ms:000000000000003a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:50     .text.delay_ms:000000000000003c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:57     .text.get_random_delay:0000000000000000 get_random_delay
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:60     .text.get_random_delay:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:61     .text.get_random_delay:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:62     .text.get_random_delay:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:63     .text.get_random_delay:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:65     .text.get_random_delay:0000000000000002 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:67     .text.get_random_delay:0000000000000004 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:69     .text.get_random_delay:0000000000000004 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:72     .text.get_random_delay:000000000000000c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:75     .text.get_random_delay:0000000000000012 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:76     .text.get_random_delay:0000000000000014 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:80     .text.get_random_delay:000000000000001a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:82     .text.get_random_delay:000000000000001a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:84     .text.get_random_delay:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:86     .text.get_random_delay:0000000000000022 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:93     .text.is_button_pressed:0000000000000000 is_button_pressed
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:96     .text.is_button_pressed:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:97     .text.is_button_pressed:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:98     .text.is_button_pressed:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:99     .text.is_button_pressed:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:100    .text.is_button_pressed:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:101    .text.is_button_pressed:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:103    .text.is_button_pressed:0000000000000004 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:105    .text.is_button_pressed:0000000000000006 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:107    .text.is_button_pressed:0000000000000006 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:110    .text.is_button_pressed:000000000000000e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:111    .text.is_button_pressed:0000000000000010 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:113    .text.is_button_pressed:0000000000000010 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:116    .text.is_button_pressed:0000000000000018 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:119    .text.is_button_pressed:0000000000000020 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:122    .text.is_button_pressed:0000000000000028 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:125    .text.is_button_pressed:000000000000002c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:127    .text.is_button_pressed:0000000000000030 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:129    .text.is_button_pressed:0000000000000034 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:130    .text.is_button_pressed:0000000000000034 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:134    .text.is_button_pressed:000000000000003c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:136    .text.is_button_pressed:0000000000000040 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:139    .text.is_button_pressed:0000000000000042 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:140    .text.is_button_pressed:0000000000000042 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:141    .text.is_button_pressed:0000000000000042 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:144    .text.is_button_pressed:0000000000000048 .L0 
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 22
+
+
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:146    .text.is_button_pressed:000000000000004a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:148    .text.is_button_pressed:000000000000004c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:151    .text.is_button_pressed:0000000000000054 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:157    .text.is_button_pressed:0000000000000062 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:158    .text.is_button_pressed:0000000000000062 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:162    .text.is_button_pressed:0000000000000066 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:163    .text.is_button_pressed:0000000000000068 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:164    .text.is_button_pressed:0000000000000068 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:167    .text.is_button_pressed:000000000000006a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:172    .text.is_button_pressed:000000000000006c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:174    .text.is_button_pressed:000000000000006c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:177    .text.is_button_pressed:0000000000000070 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:184    .text.show_history:0000000000000000 show_history
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:187    .text.show_history:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:188    .text.show_history:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:189    .text.show_history:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:190    .text.show_history:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:192    .text.show_history:0000000000000002 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:194    .text.show_history:0000000000000002 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:196    .text.show_history:0000000000000004 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:205    .text.show_history:0000000000000016 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:206    .text.show_history:0000000000000016 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:207    .text.show_history:0000000000000016 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:208    .text.show_history:0000000000000016 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:209    .text.show_history:0000000000000016 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:210    .text.show_history:0000000000000016 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:211    .text.show_history:0000000000000016 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:212    .text.show_history:0000000000000016 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:213    .text.show_history:0000000000000016 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:215    .text.show_history:0000000000000016 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:218    .text.show_history:000000000000001e .L0 
+                            *COM*:0000000000000028 results
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:228    .text.show_history:0000000000000034 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:230    .text.show_history:0000000000000038 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:234    .text.show_history:0000000000000040 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:237    .text.show_history:0000000000000048 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:239    .text.show_history:0000000000000048 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:240    .text.show_history:0000000000000048 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:242    .text.show_history:000000000000004c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:244    .text.show_history:000000000000004e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:246    .text.show_history:0000000000000052 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:248    .text.show_history:0000000000000056 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:251    .text.show_history:000000000000005e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:255    .text.show_history:0000000000000062 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:258    .text.show_history:000000000000006a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:261    .text.show_history:000000000000006e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:271    .text.show_history:000000000000008a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:272    .text.show_history:000000000000008a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:273    .text.show_history:000000000000008a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:276    .text.show_history:0000000000000092 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:279    .text.show_history:0000000000000094 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:280    .text.show_history:0000000000000094 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:283    .text.show_history:000000000000009c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:285    .text.show_history:000000000000009e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:286    .text.show_history:000000000000009e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:287    .text.show_history:00000000000000a0 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:288    .text.show_history:00000000000000a0 .L0 
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 23
+
+
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:290    .text.show_history:00000000000000a2 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:292    .text.show_history:00000000000000a2 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:294    .text.show_history:00000000000000a6 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:295    .text.show_history:00000000000000a8 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:298    .text.show_history:00000000000000aa .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:300    .text.show_history:00000000000000ac .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:302    .text.show_history:00000000000000ae .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:304    .text.show_history:00000000000000b0 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:306    .text.show_history:00000000000000b2 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:308    .text.show_history:00000000000000b4 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:311    .text.show_history:00000000000000b6 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:316    .text.show_history:00000000000000b8 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:319    .text.show_history:00000000000000b8 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:320    .text.show_history:00000000000000b8 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:322    .text.show_history:00000000000000bc .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:328    .text.show_history:00000000000000c4 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:334    .text.show_history:00000000000000ce .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:340    .text.show_history:00000000000000de .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:353    .text.show_history:00000000000000fe .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:361    .text.startup.main:0000000000000000 main
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:364    .text.startup.main:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:365    .text.startup.main:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:366    .text.startup.main:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:367    .text.startup.main:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:369    .text.startup.main:0000000000000002 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:371    .text.startup.main:0000000000000002 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:373    .text.startup.main:0000000000000006 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:384    .text.startup.main:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:385    .text.startup.main:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:386    .text.startup.main:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:387    .text.startup.main:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:388    .text.startup.main:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:389    .text.startup.main:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:390    .text.startup.main:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:391    .text.startup.main:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:392    .text.startup.main:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:393    .text.startup.main:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:394    .text.startup.main:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:396    .text.startup.main:000000000000001c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:399    .text.startup.main:0000000000000024 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:403    .text.startup.main:0000000000000030 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:407    .text.startup.main:000000000000003c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:415    .text.startup.main:0000000000000052 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:422    .text.startup.main:0000000000000066 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:429    .text.startup.main:0000000000000078 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:432    .text.startup.main:0000000000000080 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:436    .text.startup.main:000000000000008a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:446    .text.startup.main:00000000000000a6 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:450    .text.startup.main:00000000000000b2 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:453    .text.startup.main:00000000000000b4 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:455    .text.startup.main:00000000000000b8 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:459    .text.startup.main:00000000000000c0 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:463    .text.startup.main:00000000000000c8 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:464    .text.startup.main:00000000000000c8 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:467    .text.startup.main:00000000000000cc .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:471    .text.startup.main:00000000000000d4 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:474    .text.startup.main:00000000000000dc .L0 
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 24
+
+
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:479    .text.startup.main:00000000000000e0 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:480    .text.startup.main:00000000000000e0 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:484    .text.startup.main:00000000000000ea .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:494    .text.startup.main:0000000000000104 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:499    .text.startup.main:0000000000000114 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:500    .text.startup.main:0000000000000114 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:503    .text.startup.main:000000000000011c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:507    .text.startup.main:0000000000000122 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:511    .text.startup.main:000000000000012c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:512    .text.startup.main:000000000000012c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:515    .text.startup.main:0000000000000130 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:519    .text.startup.main:0000000000000138 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:522    .text.startup.main:000000000000013a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:529    .text.startup.main:000000000000014e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:537    .text.startup.main:0000000000000162 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:538    .text.startup.main:0000000000000162 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:543    .text.startup.main:000000000000016e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:544    .text.startup.main:000000000000016e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:546    .text.startup.main:0000000000000172 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:552    .text.startup.main:000000000000017e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:557    .text.startup.main:0000000000000182 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:558    .text.startup.main:0000000000000182 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:562    .text.startup.main:000000000000018c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:564    .text.startup.main:0000000000000190 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:570    .text.startup.main:000000000000019c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:575    .text.startup.main:00000000000001a0 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:580    .text.startup.main:00000000000001ac .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:584    .text.startup.main:00000000000001b6 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:587    .text.startup.main:00000000000001be .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:588    .text.startup.main:00000000000001be .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:592    .text.startup.main:00000000000001c2 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:593    .text.startup.main:00000000000001c2 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:598    .text.startup.main:00000000000001cc .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:599    .text.startup.main:00000000000001cc .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:601    .text.startup.main:00000000000001ce .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:605    .text.startup.main:00000000000001da .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:609    .text.startup.main:00000000000001e2 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:611    .text.startup.main:00000000000001e6 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:614    .text.startup.main:00000000000001ee .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:617    .text.startup.main:00000000000001f6 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:623    .text.startup.main:0000000000000206 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:625    .text.startup.main:000000000000020a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:627    .text.startup.main:000000000000020c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:630    .text.startup.main:000000000000020e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:631    .text.startup.main:000000000000020e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:632    .text.startup.main:000000000000020e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:633    .text.startup.main:000000000000020e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:636    .text.startup.main:0000000000000210 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:638    .text.startup.main:0000000000000214 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:641    .text.startup.main:000000000000021c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:650    .text.startup.main:0000000000000236 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:651    .text.startup.main:0000000000000236 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:659    .text.startup.main:000000000000024c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:668    .text.startup.main:0000000000000262 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:669    .text.startup.main:0000000000000262 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:673    .text.startup.main:000000000000026c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:677    .text.startup.main:0000000000000278 .L0 
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 25
+
+
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:682    .text.startup.main:0000000000000280 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:687    .text.startup.main:000000000000028c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:692    .text.startup.main:000000000000028e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:693    .text.startup.main:000000000000028e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:696    .text.startup.main:0000000000000294 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:702    .text.startup.main:00000000000002a2 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:703    .text.startup.main:00000000000002a2 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:706    .text.startup.main:00000000000002a8 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:713    .text.startup.main:00000000000002b2 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:719    .text.startup.main:00000000000002b6 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:723    .text.startup.main:00000000000002c0 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:734    .text.startup.main:00000000000002de .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:786    .sbss.result_count:0000000000000000 result_count
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:777    .sbss.last_time.5046:0000000000000000 .LANCHOR1
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:780    .sbss.last_time.5046:0000000000000000 last_time.5046
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:783    .sbss.result_count:0000000000000000 .LANCHOR2
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:789    .sdata.last_state.5047:0000000000000000 .LANCHOR0
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:792    .sdata.last_state.5047:0000000000000000 last_state.5047
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:53     .text.delay_ms:000000000000003c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:89     .text.get_random_delay:0000000000000022 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:180    .text.is_button_pressed:0000000000000070 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:357    .text.show_history:00000000000000fe .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:739    .text.startup.main:00000000000002de .L0 
+                     .debug_frame:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:47     .text.delay_ms:000000000000003a .L1
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:34     .text.delay_ms:000000000000001c .L2
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:138    .text.is_button_pressed:0000000000000042 .L8
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:155    .text.is_button_pressed:0000000000000062 .L12
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:170    .text.is_button_pressed:000000000000006c .L13
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:160    .text.is_button_pressed:0000000000000066 .L9
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:768    .rodata.show_history.str1.4:0000000000000018 .LC3
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:760    .rodata.show_history.str1.4:0000000000000000 .LC0
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:762    .rodata.show_history.str1.4:0000000000000004 .LC1
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:765    .rodata.show_history.str1.4:000000000000000c .LC2
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:770    .rodata.show_history.str1.4:0000000000000028 .LC4
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:773    .rodata.show_history.str1.4:0000000000000038 .LC5
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:314    .text.show_history:00000000000000b8 .L18
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:270    .text.show_history:000000000000008a .L19
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:277    .text.show_history:0000000000000094 .L20
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:332    .text.show_history:00000000000000ce .L17
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:253    .text.show_history:0000000000000062 .L16
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:741    .rodata.main.str1.4:0000000000000000 .LC6
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:744    .rodata.main.str1.4:0000000000000010 .LC7
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:747    .rodata.main.str1.4:0000000000000020 .LC8
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:750    .rodata.main.str1.4:000000000000002c .LC9
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:753    .rodata.main.str1.4:0000000000000034 .LC10
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:756    .rodata.main.str1.4:0000000000000048 .LC11
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:520    .text.startup.main:000000000000013a .L28
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:689    .text.startup.main:000000000000028e .L29
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:710    .text.startup.main:00000000000002b2 .L40
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:553    .text.startup.main:0000000000000182 .L32
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:716    .text.startup.main:00000000000002b6 .L34
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:679    .text.startup.main:0000000000000280 .L36
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:475    .text.startup.main:00000000000000e0 .L37
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:700    .text.startup.main:00000000000002a2 .L31
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:550    .text.startup.main:000000000000017e .L30
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:571    .text.startup.main:00000000000001a0 .L33
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 26
+
+
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:3489   .debug_abbrev:0000000000000000 .Ldebug_abbrev0
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4878   .debug_str:00000000000006f2 .LASF202
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4714   .debug_str:0000000000000381 .LASF203
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4786   .debug_str:0000000000000503 .LASF204
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4492   .debug_ranges:0000000000000000 .Ldebug_ranges0
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4532   .debug_line:0000000000000000 .Ldebug_line0
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4578   .debug_str:00000000000000e2 .LASF0
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4860   .debug_str:0000000000000699 .LASF1
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4608   .debug_str:000000000000018a .LASF2
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4562   .debug_str:000000000000008d .LASF7
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4788   .debug_str:000000000000054f .LASF3
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4864   .debug_str:00000000000006af .LASF4
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4884   .debug_str:000000000000078e .LASF5
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4570   .debug_str:00000000000000ae .LASF6
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4656   .debug_str:0000000000000271 .LASF8
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4686   .debug_str:0000000000000301 .LASF9
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4642   .debug_str:0000000000000226 .LASF10
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4764   .debug_str:0000000000000488 .LASF11
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4868   .debug_str:00000000000006c1 .LASF12
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4896   .debug_str:00000000000007d6 .LASF13
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4744   .debug_str:000000000000041d .LASF14
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4678   .debug_str:00000000000002d5 .LASF161
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4548   .debug_str:0000000000000046 .LASF15
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4610   .debug_str:0000000000000196 .LASF16
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4604   .debug_str:000000000000017b .LASF17
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4862   .debug_str:00000000000006a6 .LASF18
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4640   .debug_str:000000000000021c .LASF19
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4774   .debug_str:00000000000004c1 .LASF20
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4776   .debug_str:00000000000004cc .LASF21
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4778   .debug_str:00000000000004d7 .LASF22
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4780   .debug_str:00000000000004e2 .LASF23
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4782   .debug_str:00000000000004ed .LASF24
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4784   .debug_str:00000000000004f8 .LASF25
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4876   .debug_str:00000000000006e8 .LASF26
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4540   .debug_str:000000000000001d .LASF27
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4542   .debug_str:0000000000000026 .LASF28
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4750   .debug_str:000000000000043f .LASF29
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4752   .debug_str:000000000000044a .LASF30
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4580   .debug_str:00000000000000f9 .LASF31
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4582   .debug_str:0000000000000103 .LASF32
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4916   .debug_str:0000000000000833 .LASF33
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4840   .debug_str:0000000000000649 .LASF34
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4652   .debug_str:0000000000000263 .LASF35
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4600   .debug_str:0000000000000165 .LASF36
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4846   .debug_str:0000000000000664 .LASF37
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4892   .debug_str:00000000000007bb .LASF38
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4704   .debug_str:0000000000000350 .LASF39
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4696   .debug_str:0000000000000330 .LASF40
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4560   .debug_str:0000000000000086 .LASF41
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4586   .debug_str:0000000000000116 .LASF42
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4680   .debug_str:00000000000002e5 .LASF43
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4682   .debug_str:00000000000002ef .LASF44
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4590   .debug_str:000000000000012b .LASF45
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4592   .debug_str:0000000000000135 .LASF46
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4692   .debug_str:000000000000031e .LASF47
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4694   .debug_str:0000000000000327 .LASF48
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4772   .debug_str:00000000000004b6 .LASF49
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 27
+
+
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4538   .debug_str:0000000000000014 .LASF50
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4748   .debug_str:0000000000000434 .LASF51
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4848   .debug_str:000000000000066d .LASF52
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4762   .debug_str:0000000000000481 .LASF53
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4568   .debug_str:00000000000000a7 .LASF54
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4844   .debug_str:000000000000065c .LASF55
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4908   .debug_str:0000000000000810 .LASF56
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4710   .debug_str:0000000000000371 .LASF57
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4676   .debug_str:00000000000002ce .LASF58
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4834   .debug_str:0000000000000633 .LASF59
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4836   .debug_str:000000000000063b .LASF60
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4770   .debug_str:00000000000004ab .LASF61
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4888   .debug_str:00000000000007a6 .LASF62
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4736   .debug_str:00000000000003e3 .LASF63
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4794   .debug_str:000000000000056c .LASF64
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4664   .debug_str:0000000000000296 .LASF69
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4872   .debug_str:00000000000006d5 .LASF65
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4824   .debug_str:000000000000060d .LASF66
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4658   .debug_str:000000000000027c .LASF67
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4904   .debug_str:0000000000000805 .LASF68
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4672   .debug_str:00000000000002ba .LASF70
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4598   .debug_str:000000000000015c .LASF71
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4666   .debug_str:000000000000029e .LASF72
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4618   .debug_str:00000000000001b9 .LASF73
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4942   .debug_str:00000000000008a9 .LASF74
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4738   .debug_str:00000000000003f5 .LASF75
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4730   .debug_str:00000000000003bf .LASF76
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4842   .debug_str:0000000000000652 .LASF77
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4796   .debug_str:0000000000000575 .LASF78
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4922   .debug_str:000000000000084a .LASF79
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4622   .debug_str:00000000000001c8 .LASF80
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4550   .debug_str:000000000000004f .LASF81
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4534   .debug_str:0000000000000000 .LASF82
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4880   .debug_str:000000000000077a .LASF83
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4536   .debug_str:000000000000000c .LASF84
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4754   .debug_str:0000000000000455 .LASF85
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4816   .debug_str:00000000000005dd .LASF86
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4654   .debug_str:000000000000026c .LASF87
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4798   .debug_str:000000000000057f .LASF88
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4616   .debug_str:00000000000001b3 .LASF89
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4858   .debug_str:0000000000000693 .LASF90
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4806   .debug_str:00000000000005a8 .LASF91
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4632   .debug_str:00000000000001f8 .LASF92
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4688   .debug_str:0000000000000313 .LASF93
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4584   .debug_str:000000000000010d .LASF94
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4624   .debug_str:00000000000001d6 .LASF95
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4668   .debug_str:00000000000002a7 .LASF96
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4728   .debug_str:00000000000003b8 .LASF97
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4838   .debug_str:0000000000000643 .LASF98
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4606   .debug_str:0000000000000183 .LASF99
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4614   .debug_str:00000000000001ad .LASF100
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4918   .debug_str:000000000000083c .LASF101
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4854   .debug_str:0000000000000685 .LASF102
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4646   .debug_str:000000000000023c .LASF103
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4698   .debug_str:0000000000000338 .LASF104
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4720   .debug_str:0000000000000397 .LASF105
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4810   .debug_str:00000000000005c2 .LASF106
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 28
+
+
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4800   .debug_str:0000000000000586 .LASF107
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4826   .debug_str:0000000000000615 .LASF108
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4850   .debug_str:0000000000000679 .LASF109
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4636   .debug_str:000000000000020b .LASF110
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4866   .debug_str:00000000000006b9 .LASF111
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4662   .debug_str:000000000000028e .LASF112
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4814   .debug_str:00000000000005d8 .LASF113
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4558   .debug_str:000000000000007b .LASF114
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4822   .debug_str:00000000000005f4 .LASF115
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4818   .debug_str:00000000000005e2 .LASF116
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4758   .debug_str:0000000000000467 .LASF117
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4820   .debug_str:00000000000005ea .LASF118
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4724   .debug_str:00000000000003a3 .LASF119
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4638   .debug_str:0000000000000212 .LASF120
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4938   .debug_str:000000000000089f .LASF121
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4768   .debug_str:00000000000004a1 .LASF122
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4684   .debug_str:00000000000002f9 .LASF123
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4644   .debug_str:0000000000000234 .LASF124
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4716   .debug_str:0000000000000388 .LASF125
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4566   .debug_str:000000000000009e .LASF126
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4912   .debug_str:0000000000000823 .LASF127
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4626   .debug_str:00000000000001de .LASF128
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4620   .debug_str:00000000000001c3 .LASF129
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4852   .debug_str:0000000000000680 .LASF130
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4802   .debug_str:000000000000058e .LASF131
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4906   .debug_str:000000000000080a .LASF132
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4700   .debug_str:000000000000033e .LASF133
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4790   .debug_str:000000000000055d .LASF134
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4828   .debug_str:000000000000061c .LASF135
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4830   .debug_str:0000000000000624 .LASF136
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4722   .debug_str:000000000000039d .LASF137
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4886   .debug_str:00000000000007a1 .LASF138
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4900   .debug_str:00000000000007f0 .LASF139
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4874   .debug_str:00000000000006db .LASF140
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4708   .debug_str:0000000000000364 .LASF141
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4924   .debug_str:0000000000000855 .LASF142
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4760   .debug_str:0000000000000472 .LASF143
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4702   .debug_str:0000000000000345 .LASF144
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4928   .debug_str:0000000000000875 .LASF145
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4812   .debug_str:00000000000005cb .LASF146
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4934   .debug_str:0000000000000889 .LASF147
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4596   .debug_str:000000000000014e .LASF148
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4910   .debug_str:0000000000000819 .LASF149
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4706   .debug_str:0000000000000358 .LASF150
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4890   .debug_str:00000000000007ae .LASF151
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4650   .debug_str:0000000000000255 .LASF152
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4594   .debug_str:000000000000013f .LASF153
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4648   .debug_str:0000000000000244 .LASF154
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4572   .debug_str:00000000000000b7 .LASF155
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4574   .debug_str:00000000000000c6 .LASF156
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4792   .debug_str:0000000000000563 .LASF157
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4742   .debug_str:0000000000000416 .LASF158
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4732   .debug_str:00000000000003c9 .LASF159
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4920   .debug_str:0000000000000842 .LASF160
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4588   .debug_str:0000000000000120 .LASF205
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4660   .debug_str:0000000000000282 .LASF162
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4894   .debug_str:00000000000007c3 .LASF163
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 29
+
+
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4756   .debug_str:000000000000045d .LASF164
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4576   .debug_str:00000000000000d7 .LASF165
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4630   .debug_str:00000000000001f0 .LASF166
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4746   .debug_str:0000000000000426 .LASF167
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4564   .debug_str:0000000000000097 .LASF168
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4936   .debug_str:0000000000000897 .LASF169
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4670   .debug_str:00000000000002ad .LASF170
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4940   .debug_str:00000000000008a4 .LASF183
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:362    .text.startup.main:0000000000000000 .LFB9
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:735    .text.startup.main:00000000000002de .LFE9
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4250   .debug_loc:0000000000000000 .LLST6
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4856   .debug_str:000000000000068e .LASF171
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4712   .debug_str:0000000000000377 .LASF172
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4882   .debug_str:0000000000000783 .LASF173
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4263   .debug_loc:0000000000000021 .LLST7
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4902   .debug_str:00000000000007fd .LASF174
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4284   .debug_loc:0000000000000049 .LLST8
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4914   .debug_str:000000000000082d .LASF175
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4301   .debug_loc:0000000000000074 .LLST9
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:559    .text.startup.main:000000000000018a .LVL44
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:568    .text.startup.main:000000000000019c .LVL46
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:590    .text.startup.main:00000000000001c2 .LBB7
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:680    .text.startup.main:0000000000000280 .LBE7
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4674   .debug_str:00000000000002bf .LASF176
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4331   .debug_loc:00000000000000af .LLST10
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4898   .debug_str:00000000000007df .LASF177
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4345   .debug_loc:00000000000000c9 .LLST11
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:639    .text.startup.main:000000000000021c .LVL56
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:648    .text.startup.main:0000000000000236 .LVL57
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:657    .text.startup.main:000000000000024c .LVL58
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:666    .text.startup.main:0000000000000262 .LVL59
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:675    .text.startup.main:0000000000000278 .LVL60
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:678    .text.startup.main:0000000000000280 .LVL61
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:482    .text.startup.main:00000000000000ea .LVL32
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:492    .text.startup.main:0000000000000104 .LVL33
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:495    .text.startup.main:000000000000010c .LVL34
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:497    .text.startup.main:0000000000000114 .LVL35
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:501    .text.startup.main:000000000000011c .LVL36
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:509    .text.startup.main:000000000000012c .LVL38
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:527    .text.startup.main:000000000000014e .LVL39
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:535    .text.startup.main:0000000000000162 .LVL40
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:549    .text.startup.main:000000000000017e .LVL42
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:578    .text.startup.main:00000000000001ac .LVL48
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:582    .text.startup.main:00000000000001b6 .LVL49
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:585    .text.startup.main:00000000000001be .LVL50
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:684    .text.startup.main:000000000000028c .LVL62
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:698    .text.startup.main:00000000000002a0 .LVL64
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:707    .text.startup.main:00000000000002b0 .LVL65
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:721    .text.startup.main:00000000000002c0 .LVL68
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:731    .text.startup.main:00000000000002dc .LVL69
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:397    .text.startup.main:0000000000000024 .LVL20
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:401    .text.startup.main:0000000000000030 .LVL21
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:405    .text.startup.main:000000000000003c .LVL22
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:413    .text.startup.main:0000000000000052 .LVL23
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:420    .text.startup.main:0000000000000066 .LVL24
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:427    .text.startup.main:0000000000000078 .LVL25
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:430    .text.startup.main:0000000000000080 .LVL26
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 30
+
+
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:434    .text.startup.main:000000000000008a .LVL27
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:444    .text.startup.main:00000000000000a6 .LVL28
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:448    .text.startup.main:00000000000000b2 .LVL29
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:460    .text.startup.main:00000000000000c8 .LVL30
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:468    .text.startup.main:00000000000000d4 .LVL31
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4808   .debug_str:00000000000005b0 .LASF181
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:94     .text.is_button_pressed:0000000000000000 .LFB8
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:178    .text.is_button_pressed:0000000000000070 .LFE8
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4356   .debug_loc:00000000000000e7 .LLST2
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4718   .debug_str:000000000000038d .LASF178
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4544   .debug_str:000000000000002f .LASF179
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4766   .debug_str:0000000000000493 .LASF180
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4379   .debug_loc:000000000000011f .LLST3
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:114    .text.is_button_pressed:0000000000000018 .LVL4
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4734   .debug_str:00000000000003d2 .LASF182
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:58     .text.get_random_delay:0000000000000000 .LFB7
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:87     .text.get_random_delay:0000000000000022 .LFE7
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4390   .debug_loc:000000000000013d .LLST1
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:70     .text.get_random_delay:000000000000000c .LVL3
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4832   .debug_str:000000000000062a .LASF184
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:14     .text.delay_ms:0000000000000000 .LFB6
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:51     .text.delay_ms:000000000000003c .LFE6
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4408   .debug_loc:0000000000000169 .LLST0
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4930   .debug_str:000000000000087a .LASF185
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4602   .debug_str:000000000000016e .LASF186
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:185    .text.show_history:0000000000000000 .LFB5
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:354    .text.show_history:00000000000000fe .LFE5
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4422   .debug_loc:000000000000018a .LLST4
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4445   .debug_loc:00000000000001c4 .LLST5
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:338    .text.show_history:00000000000000de .LVL18
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:350    .text.show_history:00000000000000fc .LVL19
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:216    .text.show_history:000000000000001e .LVL9
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:235    .text.show_history:0000000000000048 .LVL10
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:268    .text.show_history:000000000000008a .LVL12
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:274    .text.show_history:0000000000000092 .LVL13
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:281    .text.show_history:000000000000009c .LVL14
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4628   .debug_str:00000000000001e6 .LASF187
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4870   .debug_str:00000000000006c9 .LASF188
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4552   .debug_str:0000000000000057 .LASF189
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4690   .debug_str:0000000000000319 .LASF190
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4556   .debug_str:000000000000006e .LASF191
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4554   .debug_str:000000000000005f .LASF192
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4634   .debug_str:00000000000001ff .LASF193
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4726   .debug_str:00000000000003ab .LASF194
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4546   .debug_str:000000000000003a .LASF195
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4740   .debug_str:00000000000003fe .LASF196
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4944   .debug_str:00000000000008b3 .LASF197
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4932   .debug_str:0000000000000880 .LASF198
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4926   .debug_str:0000000000000864 .LASF199
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4612   .debug_str:000000000000019f .LASF200
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:4804   .debug_str:0000000000000595 .LASF201
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:368    .text.startup.main:0000000000000002 .LCFI8
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:541    .text.startup.main:000000000000016e .LVL41
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:628    .text.startup.main:000000000000020e .LVL54
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:688    .text.startup.main:000000000000028e .LVL63
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:572    .text.startup.main:00000000000001a0 .LVL47
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:589    .text.startup.main:00000000000001c2 .LVL51
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 31
+
+
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:715    .text.startup.main:00000000000002b6 .LVL67
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:554    .text.startup.main:0000000000000182 .LVL43
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:566    .text.startup.main:0000000000000194 .LVL45
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:709    .text.startup.main:00000000000002b2 .LVL66
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:596    .text.startup.main:00000000000001cc .LVL52
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:612    .text.startup.main:00000000000001ee .LVL53
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:634    .text.startup.main:0000000000000210 .LVL55
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:104    .text.is_button_pressed:0000000000000006 .LCFI2
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:166    .text.is_button_pressed:000000000000006a .LCFI3
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:171    .text.is_button_pressed:000000000000006c .LCFI4
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:123    .text.is_button_pressed:000000000000002c .LVL5
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:159    .text.is_button_pressed:0000000000000066 .LVL6
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:169    .text.is_button_pressed:000000000000006c .LVL7
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:175    .text.is_button_pressed:000000000000006e .LVL8
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:64     .text.get_random_delay:0000000000000002 .LCFI0
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:79     .text.get_random_delay:000000000000001a .LCFI1
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:18     .text.delay_ms:0000000000000000 .LVL0
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:30     .text.delay_ms:0000000000000016 .LVL2
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:191    .text.show_history:0000000000000002 .LCFI5
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:310    .text.show_history:00000000000000b6 .LCFI6
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:315    .text.show_history:00000000000000b8 .LCFI7
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:252    .text.show_history:0000000000000062 .LVL11
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:296    .text.show_history:00000000000000a8 .LVL15
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:313    .text.show_history:00000000000000b8 .LVL16
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:323    .text.show_history:00000000000000be .LVL17
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:811    .debug_info:0000000000000000 .Ldebug_info0
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:226    .text.show_history:0000000000000034 .LBB2
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:232    .text.show_history:0000000000000040 .LBE2
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:238    .text.show_history:0000000000000048 .LBB3
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:259    .text.show_history:000000000000006e .LBE3
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:317    .text.show_history:00000000000000b8 .LBB4
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:352    .text.show_history:00000000000000fe .LBE4
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:451    .text.startup.main:00000000000000b4 .LBB5
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:457    .text.startup.main:00000000000000c0 .LBE5
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:462    .text.startup.main:00000000000000c8 .LBB9
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:465    .text.startup.main:00000000000000cc .LBE9
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:469    .text.startup.main:00000000000000d4 .LBB10
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:476    .text.startup.main:00000000000000e0 .LBE10
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:478    .text.startup.main:00000000000000e0 .LBB11
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:685    .text.startup.main:000000000000028c .LBE11
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:690    .text.startup.main:000000000000028e .LBB12
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:733    .text.startup.main:00000000000002de .LBE12
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:555    .text.startup.main:0000000000000182 .LBB6
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:573    .text.startup.main:00000000000001a0 .LBE6
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:711    .text.startup.main:00000000000002b2 .LBB8
+C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s:717    .text.startup.main:00000000000002b6 .LBE8
+
+UNDEFINED SYMBOLS
+rand
+gpio_input_bit_get
+LCD_Clear
+LCD_ShowStr
+sprintf
+__udivdi3
+rcu_periph_clock_enable
+gpio_init
+Lcd_Init
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc0cq9qV.s 			page 32
+
+
+T2powerUpInitPWM
+vibrator_init
+gpio_bit_set
+gpio_bit_reset
+T2setPWMch0
+vibrator_off
+vibrator_on

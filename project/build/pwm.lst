@@ -1,0 +1,493 @@
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s 			page 1
+
+
+   1              		.file	"pwm.c"
+   2              		.option nopic
+   3              		.attribute arch, "rv32i2p0_m2p0_a2p0_c2p0"
+   4              		.attribute unaligned_access, 0
+   5              		.attribute stack_align, 16
+   6              		.text
+   7              	.Ltext0:
+   8              		.cfi_sections	.debug_frame
+   9              		.section	.text.T2powerUpInitPWM,"ax",@progbits
+  10              		.align	1
+  11              		.globl	T2powerUpInitPWM
+  13              	T2powerUpInitPWM:
+  14              	.LFB2:
+  15              		.file 1 "pwm.c"
+   1:pwm.c         **** #include "pwm.h"
+   2:pwm.c         **** 
+   3:pwm.c         **** void T2powerUpInitPWM(uint16_t ch) {
+  16              		.loc 1 3 36
+  17              		.cfi_startproc
+  18              	.LVL0:
+   4:pwm.c         ****     timer_oc_parameter_struct timer_ocinitpara;
+  19              		.loc 1 4 5
+   5:pwm.c         ****     timer_parameter_struct timer_initpara;
+  20              		.loc 1 5 5
+   6:pwm.c         **** 
+   7:pwm.c         ****     rcu_periph_clock_enable(RCU_GPIOA);
+  21              		.loc 1 7 5
+   3:pwm.c         ****     timer_oc_parameter_struct timer_ocinitpara;
+  22              		.loc 1 3 36 is_stmt 0
+  23 0000 7971     		addi	sp,sp,-48
+  24              	.LCFI0:
+  25              		.cfi_def_cfa_offset 48
+  26 0002 26D2     		sw	s1,36(sp)
+  27              		.cfi_offset 9, -12
+  28 0004 AA84     		mv	s1,a0
+  29              		.loc 1 7 5
+  30 0006 13052060 		li	a0,1538
+  31              	.LVL1:
+   3:pwm.c         ****     timer_oc_parameter_struct timer_ocinitpara;
+  32              		.loc 1 3 36
+  33 000a 06D6     		sw	ra,44(sp)
+  34 000c 22D4     		sw	s0,40(sp)
+  35              		.cfi_offset 1, -4
+  36              		.cfi_offset 8, -8
+  37              		.loc 1 7 5
+  38 000e 97000000 		call	rcu_periph_clock_enable
+  38      E7800000 
+  39              	.LVL2:
+   8:pwm.c         ****     rcu_periph_clock_enable(RCU_AF);
+  40              		.loc 1 8 5 is_stmt 1
+  41 0016 13050060 		li	a0,1536
+  42 001a 8588     		andi	s1,s1,1
+  43 001c 97000000 		call	rcu_periph_clock_enable
+  43      E7800000 
+  44              	.LVL3:
+   9:pwm.c         ****     if (ch & 0x1) gpio_init(GPIOA, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_6);
+  45              		.loc 1 9 5
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s 			page 2
+
+
+  46              		.loc 1 9 8 is_stmt 0
+  47 0024 89CC     		beq	s1,zero,.L2
+  48              		.loc 1 9 19 is_stmt 1 discriminator 1
+  49 0026 37150140 		li	a0,1073811456
+  50 002a 93060004 		li	a3,64
+  51 002e 0D46     		li	a2,3
+  52 0030 E145     		li	a1,24
+  53 0032 13050580 		addi	a0,a0,-2048
+  54 0036 97000000 		call	gpio_init
+  54      E7800000 
+  55              	.LVL4:
+  56              	.L2:
+  10:pwm.c         **** 
+  11:pwm.c         ****     rcu_periph_clock_enable(RCU_TIMER2);
+  57              		.loc 1 11 5
+  58 003e 13051070 		li	a0,1793
+  59 0042 97000000 		call	rcu_periph_clock_enable
+  59      E7800000 
+  60              	.LVL5:
+  12:pwm.c         ****     timer_deinit(TIMER2);
+  61              		.loc 1 12 5
+  62 004a 37040040 		li	s0,1073741824
+  63 004e 13050440 		addi	a0,s0,1024
+  64 0052 97000000 		call	timer_deinit
+  64      E7800000 
+  65              	.LVL6:
+  13:pwm.c         **** 
+  14:pwm.c         ****     // 108MHz / (107+1) = 1 MHz
+  15:pwm.c         ****     timer_struct_para_init(&timer_initpara);
+  66              		.loc 1 15 5
+  67 005a 0808     		addi	a0,sp,16
+  68 005c 97000000 		call	timer_struct_para_init
+  68      E7800000 
+  69              	.LVL7:
+  16:pwm.c         ****     timer_initpara.prescaler         = 107;
+  70              		.loc 1 16 5
+  17:pwm.c         ****     timer_initpara.alignedmode       = TIMER_COUNTER_EDGE;
+  71              		.loc 1 17 5
+  18:pwm.c         ****     timer_initpara.counterdirection  = TIMER_COUNTER_UP;
+  72              		.loc 1 18 5
+  16:pwm.c         ****     timer_initpara.prescaler         = 107;
+  73              		.loc 1 16 38 is_stmt 0
+  74 0064 9307B006 		li	a5,107
+  75 0068 3EC8     		sw	a5,16(sp)
+  19:pwm.c         ****     timer_initpara.period            = 1173; // 1 MHz / 1173 = 852 Hz
+  20:pwm.c         ****     timer_initpara.clockdivision     = TIMER_CKDIV_DIV1;
+  21:pwm.c         ****     timer_initpara.repetitioncounter = 0;
+  22:pwm.c         ****     timer_init(TIMER2, &timer_initpara);
+  76              		.loc 1 22 5
+  77 006a 0C08     		addi	a1,sp,16
+  19:pwm.c         ****     timer_initpara.period            = 1173; // 1 MHz / 1173 = 852 Hz
+  78              		.loc 1 19 38
+  79 006c 93075049 		li	a5,1173
+  80              		.loc 1 22 5
+  81 0070 13050440 		addi	a0,s0,1024
+  19:pwm.c         ****     timer_initpara.period            = 1173; // 1 MHz / 1173 = 852 Hz
+  82              		.loc 1 19 38
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s 			page 3
+
+
+  83 0074 3ECC     		sw	a5,24(sp)
+  18:pwm.c         ****     timer_initpara.counterdirection  = TIMER_COUNTER_UP;
+  84              		.loc 1 18 38
+  85 0076 231A0100 		sh	zero,20(sp)
+  19:pwm.c         ****     timer_initpara.period            = 1173; // 1 MHz / 1173 = 852 Hz
+  86              		.loc 1 19 5 is_stmt 1
+  20:pwm.c         ****     timer_initpara.repetitioncounter = 0;
+  87              		.loc 1 20 5
+  20:pwm.c         ****     timer_initpara.repetitioncounter = 0;
+  88              		.loc 1 20 38 is_stmt 0
+  89 007a 231E0100 		sh	zero,28(sp)
+  21:pwm.c         ****     timer_init(TIMER2, &timer_initpara);
+  90              		.loc 1 21 5 is_stmt 1
+  21:pwm.c         ****     timer_init(TIMER2, &timer_initpara);
+  91              		.loc 1 21 38 is_stmt 0
+  92 007e 230F0100 		sb	zero,30(sp)
+  93              		.loc 1 22 5 is_stmt 1
+  94 0082 97000000 		call	timer_init
+  94      E7800000 
+  95              	.LVL8:
+  23:pwm.c         **** 
+  24:pwm.c         ****     timer_channel_output_struct_para_init(&timer_ocinitpara);
+  96              		.loc 1 24 5
+  97 008a 4800     		addi	a0,sp,4
+  98 008c 97000000 		call	timer_channel_output_struct_para_init
+  98      E7800000 
+  99              	.LVL9:
+  25:pwm.c         ****     timer_ocinitpara.outputstate  = TIMER_CCX_ENABLE;
+ 100              		.loc 1 25 5
+  26:pwm.c         ****     timer_ocinitpara.outputnstate = TIMER_CCXN_DISABLE;
+ 101              		.loc 1 26 5
+  27:pwm.c         ****     timer_ocinitpara.ocpolarity   = TIMER_OC_POLARITY_HIGH;
+ 102              		.loc 1 27 5
+  28:pwm.c         ****     timer_ocinitpara.ocnpolarity  = TIMER_OCN_POLARITY_HIGH;
+ 103              		.loc 1 28 5
+  29:pwm.c         ****     timer_ocinitpara.ocidlestate  = TIMER_OC_IDLE_STATE_LOW;
+ 104              		.loc 1 29 5
+  30:pwm.c         ****     timer_ocinitpara.ocnidlestate = TIMER_OCN_IDLE_STATE_LOW;
+ 105              		.loc 1 30 5
+  25:pwm.c         ****     timer_ocinitpara.outputnstate = TIMER_CCXN_DISABLE;
+ 106              		.loc 1 25 35 is_stmt 0
+ 107 0094 8547     		li	a5,1
+ 108 0096 3EC2     		sw	a5,4(sp)
+  27:pwm.c         ****     timer_ocinitpara.ocnpolarity  = TIMER_OCN_POLARITY_HIGH;
+ 109              		.loc 1 27 35
+ 110 0098 02C4     		sw	zero,8(sp)
+  29:pwm.c         ****     timer_ocinitpara.ocnidlestate = TIMER_OCN_IDLE_STATE_LOW;
+ 111              		.loc 1 29 35
+ 112 009a 02C6     		sw	zero,12(sp)
+  31:pwm.c         **** 
+  32:pwm.c         ****     if (ch & 0x1) {
+ 113              		.loc 1 32 5 is_stmt 1
+ 114              		.loc 1 32 8 is_stmt 0
+ 115 009c B1C0     		beq	s1,zero,.L3
+  33:pwm.c         ****         timer_channel_output_config(TIMER2, TIMER_CH_0, &timer_ocinitpara);
+ 116              		.loc 1 33 9 is_stmt 1
+ 117 009e 5000     		addi	a2,sp,4
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s 			page 4
+
+
+ 118 00a0 8145     		li	a1,0
+ 119 00a2 13050440 		addi	a0,s0,1024
+ 120 00a6 97000000 		call	timer_channel_output_config
+ 120      E7800000 
+ 121              	.LVL10:
+  34:pwm.c         ****         timer_channel_output_pulse_value_config(TIMER2, TIMER_CH_0, 0); // Tyst från start
+ 122              		.loc 1 34 9
+ 123 00ae 0146     		li	a2,0
+ 124 00b0 8145     		li	a1,0
+ 125 00b2 13050440 		addi	a0,s0,1024
+ 126 00b6 97000000 		call	timer_channel_output_pulse_value_config
+ 126      E7800000 
+ 127              	.LVL11:
+  35:pwm.c         ****         timer_channel_output_mode_config(TIMER2, TIMER_CH_0, TIMER_OC_MODE_PWM0);
+ 128              		.loc 1 35 9
+ 129 00be 13060006 		li	a2,96
+ 130 00c2 8145     		li	a1,0
+ 131 00c4 13050440 		addi	a0,s0,1024
+ 132 00c8 97000000 		call	timer_channel_output_mode_config
+ 132      E7800000 
+ 133              	.LVL12:
+  36:pwm.c         ****         timer_channel_output_shadow_config(TIMER2, TIMER_CH_0, TIMER_OC_SHADOW_DISABLE);
+ 134              		.loc 1 36 9
+ 135 00d0 0146     		li	a2,0
+ 136 00d2 8145     		li	a1,0
+ 137 00d4 13050440 		addi	a0,s0,1024
+ 138 00d8 97000000 		call	timer_channel_output_shadow_config
+ 138      E7800000 
+ 139              	.LVL13:
+ 140              	.L3:
+  37:pwm.c         ****     }
+  38:pwm.c         **** 
+  39:pwm.c         ****     timer_auto_reload_shadow_enable(TIMER2);
+ 141              		.loc 1 39 5
+ 142 00e0 37040040 		li	s0,1073741824
+ 143 00e4 13050440 		addi	a0,s0,1024
+ 144 00e8 97000000 		call	timer_auto_reload_shadow_enable
+ 144      E7800000 
+ 145              	.LVL14:
+  40:pwm.c         ****     timer_enable(TIMER2);
+ 146              		.loc 1 40 5
+ 147 00f0 13050440 		addi	a0,s0,1024
+ 148 00f4 97000000 		call	timer_enable
+ 148      E7800000 
+ 149              	.LVL15:
+  41:pwm.c         **** }
+ 150              		.loc 1 41 1 is_stmt 0
+ 151 00fc B250     		lw	ra,44(sp)
+ 152              		.cfi_restore 1
+ 153 00fe 2254     		lw	s0,40(sp)
+ 154              		.cfi_restore 8
+ 155 0100 9254     		lw	s1,36(sp)
+ 156              		.cfi_restore 9
+ 157 0102 4561     		addi	sp,sp,48
+ 158              	.LCFI1:
+ 159              		.cfi_def_cfa_offset 0
+ 160 0104 8280     		jr	ra
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s 			page 5
+
+
+ 161              		.cfi_endproc
+ 162              	.LFE2:
+ 164              		.section	.text.T2setPWMch0,"ax",@progbits
+ 165              		.align	1
+ 166              		.globl	T2setPWMch0
+ 168              	T2setPWMch0:
+ 169              	.LFB3:
+  42:pwm.c         **** 
+  43:pwm.c         **** void T2setPWMch0(int value) {
+ 170              		.loc 1 43 29 is_stmt 1
+ 171              		.cfi_startproc
+ 172              	.LVL16:
+  44:pwm.c         ****     timer_channel_output_pulse_value_config(TIMER2, TIMER_CH_0, value);
+ 173              		.loc 1 44 5
+ 174 0000 2A86     		mv	a2,a0
+ 175 0002 37050040 		li	a0,1073741824
+ 176              	.LVL17:
+ 177 0006 8145     		li	a1,0
+ 178 0008 13050540 		addi	a0,a0,1024
+ 179 000c 17030000 		tail	timer_channel_output_pulse_value_config
+ 179      67000300 
+ 180              	.LVL18:
+ 181              		.cfi_endproc
+ 182              	.LFE3:
+ 184              		.text
+ 185              	.Letext0:
+ 186              		.file 2 "c:\\users\\nesre\\documents\\mikro\\toolchain-gd32v-v202-win\\compiler\\riscv64-unknown-e
+ 187              		.file 3 "c:\\users\\nesre\\documents\\mikro\\toolchain-gd32v-v202-win\\compiler\\riscv64-unknown-e
+ 188              		.file 4 "./../../firmware/GD32VF103_standard_peripheral/Include/gd32vf103_timer.h"
+ 189              		.file 5 "./../../firmware/GD32VF103_standard_peripheral/Include/gd32vf103_rcu.h"
+ 190              		.file 6 "./../../firmware/GD32VF103_standard_peripheral/Include/gd32vf103_gpio.h"
+ 191              		.file 7 "./../../firmware/GD32VF103_standard_peripheral/system_gd32vf103.h"
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 pwm.c
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:13     .text.T2powerUpInitPWM:0000000000000000 T2powerUpInitPWM
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:17     .text.T2powerUpInitPWM:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:19     .text.T2powerUpInitPWM:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:20     .text.T2powerUpInitPWM:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:21     .text.T2powerUpInitPWM:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:22     .text.T2powerUpInitPWM:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:23     .text.T2powerUpInitPWM:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:25     .text.T2powerUpInitPWM:0000000000000002 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:27     .text.T2powerUpInitPWM:0000000000000004 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:30     .text.T2powerUpInitPWM:0000000000000006 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:33     .text.T2powerUpInitPWM:000000000000000a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:35     .text.T2powerUpInitPWM:000000000000000e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:36     .text.T2powerUpInitPWM:000000000000000e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:38     .text.T2powerUpInitPWM:000000000000000e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:41     .text.T2powerUpInitPWM:0000000000000016 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:46     .text.T2powerUpInitPWM:0000000000000024 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:47     .text.T2powerUpInitPWM:0000000000000024 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:49     .text.T2powerUpInitPWM:0000000000000026 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:58     .text.T2powerUpInitPWM:000000000000003e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:62     .text.T2powerUpInitPWM:000000000000004a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:67     .text.T2powerUpInitPWM:000000000000005a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:71     .text.T2powerUpInitPWM:0000000000000064 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:72     .text.T2powerUpInitPWM:0000000000000064 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:73     .text.T2powerUpInitPWM:0000000000000064 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:74     .text.T2powerUpInitPWM:0000000000000064 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:77     .text.T2powerUpInitPWM:000000000000006a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:79     .text.T2powerUpInitPWM:000000000000006c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:81     .text.T2powerUpInitPWM:0000000000000070 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:83     .text.T2powerUpInitPWM:0000000000000074 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:85     .text.T2powerUpInitPWM:0000000000000076 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:87     .text.T2powerUpInitPWM:000000000000007a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:88     .text.T2powerUpInitPWM:000000000000007a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:89     .text.T2powerUpInitPWM:000000000000007a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:91     .text.T2powerUpInitPWM:000000000000007e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:92     .text.T2powerUpInitPWM:000000000000007e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:94     .text.T2powerUpInitPWM:0000000000000082 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:97     .text.T2powerUpInitPWM:000000000000008a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:101    .text.T2powerUpInitPWM:0000000000000094 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:102    .text.T2powerUpInitPWM:0000000000000094 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:103    .text.T2powerUpInitPWM:0000000000000094 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:104    .text.T2powerUpInitPWM:0000000000000094 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:105    .text.T2powerUpInitPWM:0000000000000094 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:106    .text.T2powerUpInitPWM:0000000000000094 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:107    .text.T2powerUpInitPWM:0000000000000094 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:110    .text.T2powerUpInitPWM:0000000000000098 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:112    .text.T2powerUpInitPWM:000000000000009a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:114    .text.T2powerUpInitPWM:000000000000009c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:115    .text.T2powerUpInitPWM:000000000000009c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:117    .text.T2powerUpInitPWM:000000000000009e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:123    .text.T2powerUpInitPWM:00000000000000ae .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:129    .text.T2powerUpInitPWM:00000000000000be .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:135    .text.T2powerUpInitPWM:00000000000000d0 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:142    .text.T2powerUpInitPWM:00000000000000e0 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:147    .text.T2powerUpInitPWM:00000000000000f0 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:151    .text.T2powerUpInitPWM:00000000000000fc .L0 
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s 			page 7
+
+
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:152    .text.T2powerUpInitPWM:00000000000000fe .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:154    .text.T2powerUpInitPWM:0000000000000100 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:156    .text.T2powerUpInitPWM:0000000000000102 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:159    .text.T2powerUpInitPWM:0000000000000104 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:161    .text.T2powerUpInitPWM:0000000000000106 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:168    .text.T2setPWMch0:0000000000000000 T2setPWMch0
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:171    .text.T2setPWMch0:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:173    .text.T2setPWMch0:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:174    .text.T2setPWMch0:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:181    .text.T2setPWMch0:0000000000000014 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:164    .text.T2powerUpInitPWM:0000000000000106 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:184    .text.T2setPWMch0:0000000000000014 .L0 
+                     .debug_frame:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:56     .text.T2powerUpInitPWM:000000000000003e .L2
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:140    .text.T2powerUpInitPWM:00000000000000e0 .L3
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:947    .debug_abbrev:0000000000000000 .Ldebug_abbrev0
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1374   .debug_str:0000000000000000 .LASF84
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1402   .debug_str:0000000000000137 .LASF85
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1510   .debug_str:00000000000003f0 .LASF86
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1364   .debug_ranges:0000000000000000 .Ldebug_ranges0
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1372   .debug_line:0000000000000000 .Ldebug_line0
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1474   .debug_str:0000000000000300 .LASF0
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1468   .debug_str:00000000000002d4 .LASF1
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1548   .debug_str:000000000000053d .LASF4
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1458   .debug_str:0000000000000293 .LASF2
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1436   .debug_str:00000000000001e5 .LASF3
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1392   .debug_str:00000000000000db .LASF5
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1486   .debug_str:0000000000000343 .LASF6
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1424   .debug_str:00000000000001a8 .LASF7
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1388   .debug_str:00000000000000c8 .LASF8
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1506   .debug_str:00000000000003d1 .LASF9
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1386   .debug_str:00000000000000ba .LASF10
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1470   .debug_str:00000000000002e0 .LASF11
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1406   .debug_str:000000000000014c .LASF12
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1476   .debug_str:000000000000030d .LASF13
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1472   .debug_str:00000000000002f7 .LASF14
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1498   .debug_str:00000000000003aa .LASF87
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1408   .debug_str:0000000000000154 .LASF15
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1500   .debug_str:00000000000003ba .LASF16
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1542   .debug_str:000000000000050c .LASF17
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1538   .debug_str:00000000000004f7 .LASF18
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1522   .debug_str:000000000000046c .LASF19
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1442   .debug_str:0000000000000222 .LASF20
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1444   .debug_str:000000000000022d .LASF21
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1446   .debug_str:0000000000000238 .LASF22
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1448   .debug_str:0000000000000243 .LASF23
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1450   .debug_str:000000000000024e .LASF24
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1452   .debug_str:0000000000000259 .LASF25
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1420   .debug_str:0000000000000193 .LASF26
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1428   .debug_str:00000000000001ba .LASF27
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1430   .debug_str:00000000000001c3 .LASF28
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1518   .debug_str:0000000000000456 .LASF29
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1520   .debug_str:0000000000000461 .LASF30
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1524   .debug_str:0000000000000476 .LASF31
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1478   .debug_str:0000000000000316 .LASF32
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1492   .debug_str:0000000000000387 .LASF33
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1494   .debug_str:0000000000000390 .LASF34
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s 			page 8
+
+
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1414   .debug_str:0000000000000175 .LASF35
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1416   .debug_str:000000000000017e .LASF36
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1466   .debug_str:00000000000002cb .LASF37
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1484   .debug_str:000000000000033b .LASF38
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1544   .debug_str:0000000000000514 .LASF39
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1390   .debug_str:00000000000000d3 .LASF40
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1504   .debug_str:00000000000003ca .LASF41
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1376   .debug_str:0000000000000088 .LASF42
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1378   .debug_str:0000000000000092 .LASF43
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1380   .debug_str:000000000000009c .LASF44
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1382   .debug_str:00000000000000a6 .LASF45
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1384   .debug_str:00000000000000b0 .LASF46
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1462   .debug_str:00000000000002b9 .LASF47
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1464   .debug_str:00000000000002c2 .LASF48
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1440   .debug_str:0000000000000217 .LASF49
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1426   .debug_str:00000000000001b1 .LASF50
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1516   .debug_str:000000000000044b .LASF51
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1482   .debug_str:0000000000000331 .LASF52
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1432   .debug_str:00000000000001cc .LASF53
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1496   .debug_str:0000000000000399 .LASF54
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1502   .debug_str:00000000000003c3 .LASF55
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1398   .debug_str:0000000000000123 .LASF56
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1528   .debug_str:0000000000000491 .LASF57
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1396   .debug_str:000000000000010c .LASF58
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1412   .debug_str:0000000000000169 .LASF59
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1514   .debug_str:000000000000043e .LASF60
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1532   .debug_str:00000000000004c3 .LASF61
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1540   .debug_str:0000000000000500 .LASF62
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1410   .debug_str:000000000000015d .LASF63
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1508   .debug_str:00000000000003e3 .LASF64
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1490   .debug_str:000000000000036d .LASF65
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1454   .debug_str:0000000000000264 .LASF66
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1418   .debug_str:0000000000000187 .LASF67
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:169    .text.T2setPWMch0:0000000000000000 .LFB3
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:182    .text.T2setPWMch0:0000000000000014 .LFE3
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1400   .debug_str:0000000000000131 .LASF69
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1299   .debug_loc:0000000000000000 .LLST2
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:180    .text.T2setPWMch0:0000000000000014 .LVL18
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1526   .debug_str:0000000000000480 .LASF68
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:14     .text.T2powerUpInitPWM:0000000000000000 .LFB2
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:162    .text.T2powerUpInitPWM:0000000000000106 .LFE2
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1317   .debug_loc:000000000000002c .LLST0
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1335   .debug_loc:0000000000000058 .LLST1
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1480   .debug_str:0000000000000320 .LASF70
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1404   .debug_str:000000000000013d .LASF71
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:39     .text.T2powerUpInitPWM:0000000000000016 .LVL2
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:44     .text.T2powerUpInitPWM:0000000000000024 .LVL3
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:55     .text.T2powerUpInitPWM:000000000000003e .LVL4
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:60     .text.T2powerUpInitPWM:000000000000004a .LVL5
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:65     .text.T2powerUpInitPWM:000000000000005a .LVL6
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:69     .text.T2powerUpInitPWM:0000000000000064 .LVL7
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:95     .text.T2powerUpInitPWM:000000000000008a .LVL8
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:99     .text.T2powerUpInitPWM:0000000000000094 .LVL9
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:121    .text.T2powerUpInitPWM:00000000000000ae .LVL10
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:127    .text.T2powerUpInitPWM:00000000000000be .LVL11
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:133    .text.T2powerUpInitPWM:00000000000000d0 .LVL12
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:139    .text.T2powerUpInitPWM:00000000000000e0 .LVL13
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s 			page 9
+
+
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:145    .text.T2powerUpInitPWM:00000000000000f0 .LVL14
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:149    .text.T2powerUpInitPWM:00000000000000fc .LVL15
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1438   .debug_str:00000000000001ef .LASF72
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1460   .debug_str:00000000000002a1 .LASF73
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1512   .debug_str:0000000000000434 .LASF74
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1536   .debug_str:00000000000004ea .LASF75
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1488   .debug_str:0000000000000356 .LASF76
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1422   .debug_str:000000000000019d .LASF77
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1394   .debug_str:00000000000000e6 .LASF78
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1534   .debug_str:00000000000004ce .LASF79
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1546   .debug_str:000000000000051c .LASF80
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1456   .debug_str:0000000000000270 .LASF81
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1530   .debug_str:00000000000004a3 .LASF82
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:1434   .debug_str:00000000000001d8 .LASF83
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:172    .text.T2setPWMch0:0000000000000000 .LVL16
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:176    .text.T2setPWMch0:0000000000000006 .LVL17
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:24     .text.T2powerUpInitPWM:0000000000000002 .LCFI0
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:158    .text.T2powerUpInitPWM:0000000000000104 .LCFI1
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:18     .text.T2powerUpInitPWM:0000000000000000 .LVL0
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:31     .text.T2powerUpInitPWM:000000000000000a .LVL1
+C:\Users\nesre\AppData\Local\Temp\cc3znkHr.s:193    .debug_info:0000000000000000 .Ldebug_info0
+
+UNDEFINED SYMBOLS
+rcu_periph_clock_enable
+gpio_init
+timer_deinit
+timer_struct_para_init
+timer_init
+timer_channel_output_struct_para_init
+timer_channel_output_config
+timer_channel_output_pulse_value_config
+timer_channel_output_mode_config
+timer_channel_output_shadow_config
+timer_auto_reload_shadow_enable
+timer_enable

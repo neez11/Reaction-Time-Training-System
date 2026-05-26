@@ -1,0 +1,259 @@
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s 			page 1
+
+
+   1              		.file	"vibrator.c"
+   2              		.option nopic
+   3              		.attribute arch, "rv32i2p0_m2p0_a2p0_c2p0"
+   4              		.attribute unaligned_access, 0
+   5              		.attribute stack_align, 16
+   6              		.text
+   7              	.Ltext0:
+   8              		.cfi_sections	.debug_frame
+   9              		.section	.text.vibrator_init,"ax",@progbits
+  10              		.align	1
+  11              		.globl	vibrator_init
+  13              	vibrator_init:
+  14              	.LFB2:
+  15              		.file 1 "vibrator.c"
+   1:vibrator.c    **** #include "gd32vf103.h"
+   2:vibrator.c    **** #include "vibrator.h"
+   3:vibrator.c    **** 
+   4:vibrator.c    **** void vibrator_init() {
+  16              		.loc 1 4 22
+  17              		.cfi_startproc
+   5:vibrator.c    ****     rcu_periph_clock_enable(RCU_GPIOB);
+  18              		.loc 1 5 5
+   4:vibrator.c    ****     rcu_periph_clock_enable(RCU_GPIOB);
+  19              		.loc 1 4 22 is_stmt 0
+  20 0000 4111     		addi	sp,sp,-16
+  21              	.LCFI0:
+  22              		.cfi_def_cfa_offset 16
+  23              		.loc 1 5 5
+  24 0002 13053060 		li	a0,1539
+   4:vibrator.c    ****     rcu_periph_clock_enable(RCU_GPIOB);
+  25              		.loc 1 4 22
+  26 0006 06C6     		sw	ra,12(sp)
+  27 0008 22C4     		sw	s0,8(sp)
+  28              		.cfi_offset 1, -4
+  29              		.cfi_offset 8, -8
+  30              		.loc 1 5 5
+  31 000a 97000000 		call	rcu_periph_clock_enable
+  31      E7800000 
+  32              	.LVL0:
+   6:vibrator.c    ****     gpio_init(GPIOB, GPIO_MODE_OUT_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_14);
+  33              		.loc 1 6 5 is_stmt 1
+  34 0012 37140140 		li	s0,1073811456
+  35 0016 130504C0 		addi	a0,s0,-1024
+  36 001a C145     		li	a1,16
+  37 001c 9166     		li	a3,16384
+  38 001e 0D46     		li	a2,3
+  39 0020 97000000 		call	gpio_init
+  39      E7800000 
+  40              	.LVL1:
+   7:vibrator.c    ****     gpio_bit_reset(GPIOB, GPIO_PIN_14);
+  41              		.loc 1 7 5
+  42 0028 130504C0 		addi	a0,s0,-1024
+   8:vibrator.c    **** }
+  43              		.loc 1 8 1 is_stmt 0
+  44 002c 2244     		lw	s0,8(sp)
+  45              		.cfi_restore 8
+  46 002e B240     		lw	ra,12(sp)
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s 			page 2
+
+
+  47              		.cfi_restore 1
+   7:vibrator.c    ****     gpio_bit_reset(GPIOB, GPIO_PIN_14);
+  48              		.loc 1 7 5
+  49 0030 9165     		li	a1,16384
+  50              		.loc 1 8 1
+  51 0032 4101     		addi	sp,sp,16
+  52              	.LCFI1:
+  53              		.cfi_def_cfa_offset 0
+   7:vibrator.c    ****     gpio_bit_reset(GPIOB, GPIO_PIN_14);
+  54              		.loc 1 7 5
+  55 0034 17030000 		tail	gpio_bit_reset
+  55      67000300 
+  56              	.LVL2:
+  57              		.cfi_endproc
+  58              	.LFE2:
+  60              		.section	.text.vibrator_on,"ax",@progbits
+  61              		.align	1
+  62              		.globl	vibrator_on
+  64              	vibrator_on:
+  65              	.LFB3:
+   9:vibrator.c    **** 
+  10:vibrator.c    **** void vibrator_on() {
+  66              		.loc 1 10 20 is_stmt 1
+  67              		.cfi_startproc
+  11:vibrator.c    ****     gpio_bit_set(GPIOB, GPIO_PIN_14);
+  68              		.loc 1 11 5
+  69 0000 37150140 		li	a0,1073811456
+  70 0004 9165     		li	a1,16384
+  71 0006 130505C0 		addi	a0,a0,-1024
+  72 000a 17030000 		tail	gpio_bit_set
+  72      67000300 
+  73              	.LVL3:
+  74              		.cfi_endproc
+  75              	.LFE3:
+  77              		.section	.text.vibrator_off,"ax",@progbits
+  78              		.align	1
+  79              		.globl	vibrator_off
+  81              	vibrator_off:
+  82              	.LFB4:
+  12:vibrator.c    **** }
+  13:vibrator.c    **** 
+  14:vibrator.c    **** void vibrator_off() {
+  83              		.loc 1 14 21
+  84              		.cfi_startproc
+  15:vibrator.c    ****     gpio_bit_reset(GPIOB, GPIO_PIN_14);
+  85              		.loc 1 15 5
+  86 0000 37150140 		li	a0,1073811456
+  87 0004 9165     		li	a1,16384
+  88 0006 130505C0 		addi	a0,a0,-1024
+  89 000a 17030000 		tail	gpio_bit_reset
+  89      67000300 
+  90              	.LVL4:
+  91              		.cfi_endproc
+  92              	.LFE4:
+  94              		.text
+  95              	.Letext0:
+  96              		.file 2 "c:\\users\\nesre\\documents\\mikro\\toolchain-gd32v-v202-win\\compiler\\riscv64-unknown-e
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s 			page 3
+
+
+  97              		.file 3 "c:\\users\\nesre\\documents\\mikro\\toolchain-gd32v-v202-win\\compiler\\riscv64-unknown-e
+  98              		.file 4 "./../../firmware/GD32VF103_standard_peripheral/Include/gd32vf103_gpio.h"
+  99              		.file 5 "./../../firmware/GD32VF103_standard_peripheral/Include/gd32vf103_rcu.h"
+ 100              		.file 6 "./../../firmware/GD32VF103_standard_peripheral/system_gd32vf103.h"
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 vibrator.c
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:13     .text.vibrator_init:0000000000000000 vibrator_init
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:17     .text.vibrator_init:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:18     .text.vibrator_init:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:19     .text.vibrator_init:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:20     .text.vibrator_init:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:22     .text.vibrator_init:0000000000000002 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:24     .text.vibrator_init:0000000000000002 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:26     .text.vibrator_init:0000000000000006 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:28     .text.vibrator_init:000000000000000a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:29     .text.vibrator_init:000000000000000a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:31     .text.vibrator_init:000000000000000a .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:34     .text.vibrator_init:0000000000000012 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:42     .text.vibrator_init:0000000000000028 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:44     .text.vibrator_init:000000000000002c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:45     .text.vibrator_init:000000000000002e .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:47     .text.vibrator_init:0000000000000030 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:49     .text.vibrator_init:0000000000000030 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:51     .text.vibrator_init:0000000000000032 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:53     .text.vibrator_init:0000000000000034 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:55     .text.vibrator_init:0000000000000034 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:57     .text.vibrator_init:000000000000003c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:64     .text.vibrator_on:0000000000000000 vibrator_on
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:67     .text.vibrator_on:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:68     .text.vibrator_on:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:69     .text.vibrator_on:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:74     .text.vibrator_on:0000000000000012 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:81     .text.vibrator_off:0000000000000000 vibrator_off
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:84     .text.vibrator_off:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:85     .text.vibrator_off:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:86     .text.vibrator_off:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:91     .text.vibrator_off:0000000000000012 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:60     .text.vibrator_init:000000000000003c .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:77     .text.vibrator_on:0000000000000012 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:94     .text.vibrator_off:0000000000000012 .L0 
+                     .debug_frame:0000000000000000 .L0 
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:478    .debug_abbrev:0000000000000000 .Ldebug_abbrev0
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:766    .debug_str:000000000000009d .LASF58
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:788    .debug_str:0000000000000197 .LASF59
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:822    .debug_str:000000000000025e .LASF60
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:726    .debug_ranges:0000000000000000 .Ldebug_ranges0
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:736    .debug_line:0000000000000000 .Ldebug_line0
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:806    .debug_str:00000000000001fb .LASF0
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:856    .debug_str:0000000000000348 .LASF1
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:740    .debug_str:000000000000000f .LASF6
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:794    .debug_str:00000000000001bb .LASF2
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:840    .debug_str:00000000000002fc .LASF3
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:786    .debug_str:0000000000000184 .LASF4
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:750    .debug_str:0000000000000055 .LASF5
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:800    .debug_str:00000000000001dc .LASF7
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:782    .debug_str:0000000000000168 .LASF8
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:824    .debug_str:00000000000002a2 .LASF9
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:808    .debug_str:0000000000000208 .LASF10
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:754    .debug_str:0000000000000067 .LASF11
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:848    .debug_str:0000000000000321 .LASF12
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:742    .debug_str:0000000000000019 .LASF61
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s 			page 5
+
+
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:844    .debug_str:000000000000030f .LASF13
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:846    .debug_str:0000000000000318 .LASF14
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:762    .debug_str:000000000000008d .LASF15
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:820    .debug_str:0000000000000255 .LASF16
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:760    .debug_str:0000000000000083 .LASF17
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:828    .debug_str:00000000000002bb .LASF18
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:830    .debug_str:00000000000002c6 .LASF19
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:804    .debug_str:00000000000001f0 .LASF20
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:834    .debug_str:00000000000002db .LASF21
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:836    .debug_str:00000000000002e6 .LASF22
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:838    .debug_str:00000000000002f1 .LASF23
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:858    .debug_str:0000000000000354 .LASF24
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:770    .debug_str:000000000000012e .LASF25
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:772    .debug_str:0000000000000137 .LASF26
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:816    .debug_str:000000000000023d .LASF27
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:796    .debug_str:00000000000001c9 .LASF28
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:744    .debug_str:0000000000000029 .LASF29
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:746    .debug_str:0000000000000033 .LASF30
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:812    .debug_str:000000000000022b .LASF31
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:814    .debug_str:0000000000000234 .LASF32
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:850    .debug_str:000000000000032a .LASF33
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:852    .debug_str:0000000000000333 .LASF34
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:842    .debug_str:0000000000000306 .LASF35
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:798    .debug_str:00000000000001d4 .LASF36
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:860    .debug_str:000000000000035e .LASF37
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:764    .debug_str:0000000000000095 .LASF38
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:758    .debug_str:000000000000007c .LASF39
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:780    .debug_str:000000000000015e .LASF40
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:784    .debug_str:000000000000017a .LASF41
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:774    .debug_str:0000000000000140 .LASF42
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:776    .debug_str:000000000000014a .LASF43
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:778    .debug_str:0000000000000154 .LASF44
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:752    .debug_str:000000000000005e .LASF45
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:802    .debug_str:00000000000001e7 .LASF46
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:826    .debug_str:00000000000002b0 .LASF47
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:768    .debug_str:0000000000000125 .LASF48
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:792    .debug_str:00000000000001b0 .LASF49
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:854    .debug_str:000000000000033c .LASF50
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:818    .debug_str:0000000000000248 .LASF51
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:82     .text.vibrator_off:0000000000000000 .LFB4
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:92     .text.vibrator_off:0000000000000012 .LFE4
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:90     .text.vibrator_off:0000000000000012 .LVL4
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:810    .debug_str:000000000000021f .LASF52
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:65     .text.vibrator_on:0000000000000000 .LFB3
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:75     .text.vibrator_on:0000000000000012 .LFE3
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:73     .text.vibrator_on:0000000000000012 .LVL3
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:790    .debug_str:00000000000001a2 .LASF53
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:14     .text.vibrator_init:0000000000000000 .LFB2
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:58     .text.vibrator_init:000000000000003c .LFE2
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:691    .debug_loc:0000000000000000 .LLST0
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:32     .text.vibrator_init:0000000000000012 .LVL0
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:40     .text.vibrator_init:0000000000000028 .LVL1
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:56     .text.vibrator_init:000000000000003c .LVL2
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:738    .debug_str:0000000000000000 .LASF54
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:756    .debug_str:000000000000006f .LASF55
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:748    .debug_str:000000000000003d .LASF56
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:832    .debug_str:00000000000002d1 .LASF57
+GAS LISTING C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s 			page 6
+
+
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:21     .text.vibrator_init:0000000000000002 .LCFI0
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:52     .text.vibrator_init:0000000000000034 .LCFI1
+C:\Users\nesre\AppData\Local\Temp\cc58mVz5.s:102    .debug_info:0000000000000000 .Ldebug_info0
+
+UNDEFINED SYMBOLS
+rcu_periph_clock_enable
+gpio_init
+gpio_bit_reset
+gpio_bit_set
